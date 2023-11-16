@@ -19,42 +19,51 @@ record CastleRights(boolean whiteKingside, boolean whiteQueenside,
 
     CastleRights disableKingside(Color color) {
         return switch (color) {
-            case White -> new CastleRights(false, this.whiteQueenside, this.blackKingside, this.blackQueenside);
-            case Black -> new CastleRights(this.whiteKingside, this.whiteQueenside, false, this.blackQueenside);
+            case White ->
+                    new CastleRights(false, this.whiteQueenside, this.blackKingside, this.blackQueenside);
+            case Black ->
+                    new CastleRights(this.whiteKingside, this.whiteQueenside, false, this.blackQueenside);
         };
     }
 
     CastleRights disableQueenside(Color color) {
         return switch (color) {
-            case White -> new CastleRights(this.whiteKingside, false, this.blackKingside, this.blackQueenside);
-            case Black -> new CastleRights(this.whiteKingside, this.whiteQueenside, this.blackKingside, false);
+            case White ->
+                    new CastleRights(this.whiteKingside, false, this.blackKingside, this.blackQueenside);
+            case Black ->
+                    new CastleRights(this.whiteKingside, this.whiteQueenside, this.blackKingside, false);
         };
     }
 
     CastleRights disableBoth(Color color) {
         return switch (color) {
-            case White -> new CastleRights(false, false, this.blackKingside, this.blackQueenside);
-            case Black -> new CastleRights(this.whiteKingside, this.whiteQueenside, false, false);
+            case White ->
+                    new CastleRights(false, false, this.blackKingside, this.blackQueenside);
+            case Black ->
+                    new CastleRights(this.whiteKingside, this.whiteQueenside, false, false);
         };
     }
 }
 
 public class ChessGame {
     private final Board board;
+    private final ArrayList<String> threeFoldRepetitionStates;
     private Color toMove;
     private CastleRights castleRights;
     private File enPassantTarget;
-    // TODO: implement moves, threefold repetition,
-    //    private ArrayList<Move> moves;
-    //    private ArrayList<String> threeFoldRepetitionStates;
     private int fiftyMoveRuleStates = 50;
-
+    // TODO: move history
 
     public ChessGame() {
         this.board = new Board();
         this.toMove = Color.White;
         this.castleRights = new CastleRights();
         this.enPassantTarget = null;
+        this.threeFoldRepetitionStates = new ArrayList<>();
+    }
+
+    public Board board() {
+        return this.board.copy();
     }
 
     public QualifiedMove move(Move move) throws IllegalArgumentException {
@@ -88,6 +97,7 @@ public class ChessGame {
 
         // Promotion & En passant
         if (piece.type() == PieceType.Pawn) {
+            // Promotion
             if (target.rank() == Rank.Eight || target.rank() == Rank.One) {
                 this.board.setPiece(
                         target,
@@ -159,31 +169,22 @@ public class ChessGame {
         }
 
 
-        // reset fifty move rule
+        // reset fifty move rule and threefold repetition
         if (capturedPiece.isPresent() || piece.type() == PieceType.Pawn) {
+            // this is an optimization, since when a pawn is moved or a piece
+            // is captured, the state of the board can never repeat and thus
+            // the threefold repetition check can be skipped
+            this.threeFoldRepetitionStates.clear();
             this.fiftyMoveRuleStates = 0;
-        } else this.fiftyMoveRuleStates++;
+        } else {
+            this.fiftyMoveRuleStates++;
+        }
 
         // Update turn
         this.toMove = this.toMove == Color.White ? Color.Black : Color.White;
 
         // game over conditions
-        retMove.status(gameStateCheck());
-
-        return retMove.build();
-    }
-
-    public boolean isLegalMove(@NotNull Move move) {
-        return getLegalMoves(move.from()).contains(move.to());
-    }
-
-    public ArrayList<Square> getLegalMoves(Square square) {
-        return board.getPiece(square)
-                .map(this::getLegalMoves)
-                .orElse(new ArrayList<>());
-    }
-
-    private GameStatus gameStateCheck() {
+        GameStatus result;
         Function<Color, Boolean> isInsufficientMaterial = (color) -> {
             var material = this.board.getPieces().stream()
                     .filter(p -> p.color() == color)
@@ -206,30 +207,47 @@ public class ChessGame {
                 .mapToInt(ArrayList::size)
                 .sum() == 0;
 
-        // TODO: implement threefold repetition
-        var threeFoldRepetition = false;
+        String hash = this.board.toHash();
+        this.threeFoldRepetitionStates.add(hash);
+        var threeFoldRepetition = this.threeFoldRepetitionStates
+                .stream()
+                .filter(state -> state.equals(hash))
+                .count() >= 3;
 
 
         if (noLegalMoves) {
-            return isCheck ? switch (this.toMove) {
+            result = isCheck ? switch (this.toMove) {
                 case Black -> GameStatus.BlackWins;
                 case White -> GameStatus.WhiteWins;
             } : GameStatus.Stalemate;
         } else if (fiftyMoveRuleStates == 50) {
-            return GameStatus.Draw;
+            result = GameStatus.Draw;
         } else if (threeFoldRepetition) {
-            return GameStatus.Draw;
+            result = GameStatus.Draw;
         } else if (isInsufficientMaterial.apply(Color.Black)
                 && isInsufficientMaterial.apply(Color.White)) {
-            return GameStatus.InsufficientMaterial;
+            result = GameStatus.InsufficientMaterial;
         } else {
             if (isCheck) {
-                return GameStatus.Check;
+                result = GameStatus.Check;
             } else {
-                return GameStatus.InProgress;
+                result = GameStatus.InProgress;
             }
         }
 
+        retMove.status(result);
+
+        return retMove.build();
+    }
+
+    public boolean isLegalMove(@NotNull Move move) {
+        return getLegalMoves(move.from()).contains(move.to());
+    }
+
+    public ArrayList<Square> getLegalMoves(Square square) {
+        return board.getPiece(square)
+                .map(this::getLegalMoves)
+                .orElse(new ArrayList<>());
     }
 
     /**

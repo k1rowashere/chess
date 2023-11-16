@@ -7,8 +7,10 @@ import core.square.Square;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 record BoardPiece(Piece piece, Square square) {
 
@@ -64,6 +66,35 @@ public final class Board {
         this.board = new Piece[8][8];
     }
 
+
+    /**
+     * @return A hex hash of the board
+     */
+    public String toHash() {
+        // convert board to bitmap of 64 bits for each piece, 6 pieces per color
+        int[] bitmaps = new int[12];
+        for (int rank = 0; rank < 8; rank++) {
+            for (int file = 0; file < 8; file++) {
+                Piece piece = this.board[rank][file];
+                if (piece != null) {
+                    int index = piece.color() == Color.White ? 0 : 6;
+                    index += switch (piece.type()) {
+                        case Pawn -> 0;
+                        case Knight -> 1;
+                        case Bishop -> 2;
+                        case Rook -> 3;
+                        case Queen -> 4;
+                        case King -> 5;
+                    };
+                    bitmaps[index] |= 1 << (rank * 8 + file);
+                }
+            }
+        }
+
+        return Arrays.stream(bitmaps)
+                .mapToObj(Integer::toHexString)
+                .collect(Collectors.joining());
+    }
 
     BoardPiece getKing(Color color) {
         return getPieces().stream()
@@ -127,6 +158,7 @@ public final class Board {
         this.board[row][col] = null;
     }
 
+    @Override
     public String toString() {
         var builder = new StringBuilder();
         for (int rank = 7; rank >= 0; rank--) {
@@ -141,5 +173,4 @@ public final class Board {
         }
         return builder.toString();
     }
-
 }
