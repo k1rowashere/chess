@@ -19,37 +19,31 @@ record CastleRights(boolean whiteKingside, boolean whiteQueenside,
 
     CastleRights disableKingside(Color color) {
         return switch (color) {
-            case White ->
-                    new CastleRights(false, this.whiteQueenside, this.blackKingside, this.blackQueenside);
-            case Black ->
-                    new CastleRights(this.whiteKingside, this.whiteQueenside, false, this.blackQueenside);
+            case White -> new CastleRights(false, this.whiteQueenside, this.blackKingside, this.blackQueenside);
+            case Black -> new CastleRights(this.whiteKingside, this.whiteQueenside, false, this.blackQueenside);
         };
     }
 
     CastleRights disableQueenside(Color color) {
         return switch (color) {
-            case White ->
-                    new CastleRights(this.whiteKingside, false, this.blackKingside, this.blackQueenside);
-            case Black ->
-                    new CastleRights(this.whiteKingside, this.whiteQueenside, this.blackKingside, false);
+            case White -> new CastleRights(this.whiteKingside, false, this.blackKingside, this.blackQueenside);
+            case Black -> new CastleRights(this.whiteKingside, this.whiteQueenside, this.blackKingside, false);
         };
     }
 
     CastleRights disableBoth(Color color) {
         return switch (color) {
-            case White ->
-                    new CastleRights(false, false, this.blackKingside, this.blackQueenside);
-            case Black ->
-                    new CastleRights(this.whiteKingside, this.whiteQueenside, false, false);
+            case White -> new CastleRights(false, false, this.blackKingside, this.blackQueenside);
+            case Black -> new CastleRights(this.whiteKingside, this.whiteQueenside, false, false);
         };
     }
 }
 
 public class ChessGame {
+    private final Board board;
     private Color toMove;
     private CastleRights castleRights;
     private File enPassantTarget;
-    private final Board board;
     // TODO: implement moves, threefold repetition,
     //    private ArrayList<Move> moves;
     //    private ArrayList<String> threeFoldRepetitionStates;
@@ -214,23 +208,26 @@ public class ChessGame {
 
         // TODO: implement threefold repetition
         var threeFoldRepetition = false;
-        var draw = (isInsufficientMaterial.apply(Color.Black)
-                && isInsufficientMaterial.apply(Color.White))
-                || fiftyMoveRuleStates == 50
-                || threeFoldRepetition;
 
 
         if (noLegalMoves) {
             return isCheck ? switch (this.toMove) {
-                case White -> GameStatus.BlackWins;
-                case Black -> GameStatus.WhiteWins;
-            } : GameStatus.Draw;
-        } else if (draw) {
+                case Black -> GameStatus.BlackWins;
+                case White -> GameStatus.WhiteWins;
+            } : GameStatus.Stalemate;
+        } else if (fiftyMoveRuleStates == 50) {
             return GameStatus.Draw;
-        } else if (isCheck) {
-            return GameStatus.Check;
+        } else if (threeFoldRepetition) {
+            return GameStatus.Draw;
+        } else if (isInsufficientMaterial.apply(Color.Black)
+                && isInsufficientMaterial.apply(Color.White)) {
+            return GameStatus.InsufficientMaterial;
         } else {
-            return GameStatus.InProgress;
+            if (isCheck) {
+                return GameStatus.Check;
+            } else {
+                return GameStatus.InProgress;
+            }
         }
 
     }
