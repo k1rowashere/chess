@@ -55,17 +55,28 @@ public class ChessGame {
     // TODO: move history
 
     public ChessGame() {
-        this.board = new Board();
+        this.board = Board.defaultBoard();
         this.toMove = Color.White;
         this.castleRights = new CastleRights();
         this.enPassantTarget = null;
         this.threeFoldRepetitionStates = new ArrayList<>();
     }
 
+    /**
+     * @return a copy of the current board
+     */
     public Board board() {
         return this.board.copy();
     }
 
+    /**
+     * @param move the move to make
+     * @return the move that was made, with additional information (promotion,
+     * castle, en passant, capture, status...)
+     * @throws IllegalArgumentException if the move is illegal, or if the
+     *                                  promotion is missing (if the move is a
+     *                                  promotion)
+     */
     public QualifiedMove move(Move move) throws IllegalArgumentException {
         /* List of steps:
          * 1. Validate move
@@ -193,12 +204,20 @@ public class ChessGame {
         return getLegalMoves(move.from()).contains(move.to());
     }
 
+    /**
+     * @param square the square to get legal moves for
+     * @return a list of legal moves for the piece on the square,
+     * or an empty list if there is no piece on the square/no legal moves
+     */
     public ArrayList<Square> getLegalMoves(Square square) {
         return board.getPiece(square)
                 .map(this::getLegalMoves)
                 .orElse(new ArrayList<>());
     }
 
+    /**
+     * @return the current game state (check, checkmate, stalemate, draw...)
+     */
     private GameStatus gameStateCheck() {
         Function<Color, Boolean> isInsufficientMaterial = (color) -> {
             var material = this.board.getPieces().stream()
@@ -214,7 +233,7 @@ public class ChessGame {
             };
         };
 
-        var isCheck = isCheck();
+        var isCheck = isInCheck();
         var noLegalMoves = this.board.getPieces()
                 .stream()
                 .filter(p -> p.color() == this.toMove)
@@ -253,8 +272,8 @@ public class ChessGame {
     }
 
     /**
-     * @param piece
-     * @return
+     * @param piece the piece to get legal moves for
+     * @return a list of legal moves for the piece
      */
     private ArrayList<Square> getLegalMoves(@NotNull BoardPiece piece) {
         if (piece.color() != this.toMove) return new ArrayList<>();
@@ -266,10 +285,13 @@ public class ChessGame {
                         .map(p -> piece.color() != p.color())
                         .orElse(true))
                 .filter(target -> lineOfSight(piece, target))
-                .filter(target -> !isCheck(new Move(piece.square(), target)))
+                .filter(target -> !isInCheck(new Move(piece.square(), target)))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * @return The current castle rights
+     */
     private @NotNull CastleRights getCastleRights() {
         var king = this.board.getKing(toMove);
         var square = king.square();
@@ -277,11 +299,11 @@ public class ChessGame {
         var canCastle = switch (king.color()) {
             case White -> square.equals(new Square(File.E, Rank.One));
             case Black -> square.equals(new Square(File.E, Rank.Eight));
-        } && !isCheck();
+        } && !isInCheck();
 
-        var kingSideCheck = isCheck(new Move(square, square.uncheckedAdd(1, 0)));
-        var queenSideCheck = isCheck(new Move(square, square.uncheckedAdd(-1, 0)))
-                || isCheck(new Move(square, square.uncheckedAdd(-2, 0)));
+        var kingSideCheck = isInCheck(new Move(square, square.uncheckedAdd(1, 0)));
+        var queenSideCheck = isInCheck(new Move(square, square.uncheckedAdd(-1, 0)))
+                || isInCheck(new Move(square, square.uncheckedAdd(-2, 0)));
 
         return canCastle ? new CastleRights(
                 !kingSideCheck && this.castleRights.whiteKingside(),
@@ -291,8 +313,11 @@ public class ChessGame {
         ) : new CastleRights(false, false, false, false);
     }
 
-    public boolean isCheck() {
-        return isCheck(null);
+    /**
+     * @return If the king of the current player is in check
+     */
+    public boolean isInCheck() {
+        return isInCheck(null);
     }
 
     /**
@@ -302,7 +327,7 @@ public class ChessGame {
      * @throws java.util.NoSuchElementException If there is no king on the
      *                                          board.
      */
-    private boolean isCheck(@Nullable Move simulateMove) {
+    private boolean isInCheck(@Nullable Move simulateMove) {
         var board = this.board.copy();
 
 

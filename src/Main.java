@@ -8,7 +8,6 @@ import core.square.Square;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class Main {
@@ -44,10 +43,10 @@ public class Main {
 
         QualifiedMove move;
         try {
-            move = game.move(new Move(
-                    parseSquare(line[0]),
-                    parseSquare(line[1]),
-                    Optional.ofNullable(promotion))
+            move = game.move(
+                    new Move(parseSquare(line[0]),
+                            parseSquare(line[1]),
+                            promotion)
             );
         } catch (Exception e) {
             writer.write("Invalid Move\n");

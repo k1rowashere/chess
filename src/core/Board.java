@@ -12,60 +12,46 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-record BoardPiece(Piece piece, Square square) {
-
-    ArrayList<Square> getMoves(
-            @NotNull final Board board,
-            File enPassantTarget,
-            CastleRights castleRights
-    ) {
-        return this.piece.getMoves(this.square, board, enPassantTarget, castleRights);
-    }
-
-    public PieceType type() {
-        return this.piece.type();
-    }
-
-    public Color color() {
-        return this.piece.color();
-    }
-}
-
 public final class Board {
     private final Piece[][] board;
 
+
     Board() {
-        var wPawn = new Piece(PieceType.Pawn, Color.White);
-        var bPawn = new Piece(PieceType.Pawn, Color.Black);
-        var wKnight = new Piece(PieceType.Knight, Color.White);
-        var bKnight = new Piece(PieceType.Knight, Color.Black);
-        var wBishop = new Piece(PieceType.Bishop, Color.White);
-        var bBishop = new Piece(PieceType.Bishop, Color.Black);
-        var wRook = new Piece(PieceType.Rook, Color.White);
-        var bRook = new Piece(PieceType.Rook, Color.Black);
-        var wQueen = new Piece(PieceType.Queen, Color.White);
-        var bQueen = new Piece(PieceType.Queen, Color.Black);
-        var wKing = new Piece(PieceType.King, Color.White);
-        var bKing = new Piece(PieceType.King, Color.Black);
-
-
-        this.board = new Piece[][]{
-                {wRook, wKnight, wBishop, wQueen, wKing, wBishop, wKnight, wRook},
-                {wPawn, wPawn, wPawn, wPawn, wPawn, wPawn, wPawn, wPawn},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {bPawn, bPawn, bPawn, bPawn, bPawn, bPawn, bPawn, bPawn},
-                {bRook, bKnight, bBishop, bQueen, bKing, bBishop, bKnight, bRook}
-        };
-
-    }
-
-    Board(boolean empty) {
         this.board = new Piece[8][8];
     }
 
+    Board(Piece[][] pieces) {
+        this.board = pieces;
+    }
+
+    static @NotNull Board defaultBoard() {
+        var wp = new Piece(PieceType.Pawn, Color.White);
+        var wn = new Piece(PieceType.Knight, Color.White);
+        var wb = new Piece(PieceType.Bishop, Color.White);
+        var wr = new Piece(PieceType.Rook, Color.White);
+        var wq = new Piece(PieceType.Queen, Color.White);
+        var wk = new Piece(PieceType.King, Color.White);
+        var bp = new Piece(PieceType.Pawn, Color.Black);
+        var bn = new Piece(PieceType.Knight, Color.Black);
+        var bb = new Piece(PieceType.Bishop, Color.Black);
+        var br = new Piece(PieceType.Rook, Color.Black);
+        var bq = new Piece(PieceType.Queen, Color.Black);
+        var bk = new Piece(PieceType.King, Color.Black);
+        Piece xx = null;
+
+        var board = new Piece[][]{
+                {wr, wn, wb, wq, wk, wb, wn, wr},
+                {wp, wp, wp, wp, wp, wp, wp, wp},
+                {xx, xx, xx, xx, xx, xx, xx, xx},
+                {xx, xx, xx, xx, xx, xx, xx, xx},
+                {xx, xx, xx, xx, xx, xx, xx, xx},
+                {xx, xx, xx, xx, xx, xx, xx, xx},
+                {bp, bp, bp, bp, bp, bp, bp, bp},
+                {br, bn, bb, bq, bk, bb, bn, br}
+        };
+
+        return new Board(board);
+    }
 
     /**
      * @return A hex hash of the board
@@ -96,7 +82,7 @@ public final class Board {
                 .collect(Collectors.joining());
     }
 
-    BoardPiece getKing(Color color) {
+    public BoardPiece getKing(Color color) {
         return getPieces().stream()
                 .filter(piece -> piece.piece().type() == PieceType.King)
                 .filter(piece -> piece.color() == color)
@@ -104,7 +90,7 @@ public final class Board {
                 .orElseThrow(() -> new NoSuchElementException("No king found"));
     }
 
-    Optional<BoardPiece> getPiece(Square square) {
+    public Optional<BoardPiece> getPiece(@NotNull Square square) {
         int col = square.file().ordinal();
         int row = square.rank().ordinal();
 
@@ -112,21 +98,25 @@ public final class Board {
                 .map(piece -> new BoardPiece(piece, square));
     }
 
-    ArrayList<BoardPiece> getPieces() {
+    /**
+     * @return all the pieces on the board
+     */
+    public @NotNull ArrayList<BoardPiece> getPieces() {
         var pieces = new ArrayList<BoardPiece>();
-        for (int rank = 0; rank < 8; rank++) {
-            for (int file = 0; file < 8; file++) {
-                Piece piece = this.board[rank][file];
-                if (piece != null) {
-                    pieces.add(new BoardPiece(piece, new Square(File.values()[file], Rank.values()[rank])));
-                }
+        for (var rank : Rank.values()) {
+            for (var file : File.values()) {
+                getPiece(new Square(file, rank))
+                        .ifPresent(pieces::add);
             }
         }
         return pieces;
     }
 
-    // unchecked move
-    public void move(Move move) {
+    /**
+     * @param move Unchecked move to make:
+     *             the move doesn't have to be legal
+     */
+    void move(@NotNull Move move) {
         int toRow = move.to().rank().ordinal();
         int toCol = move.to().file().ordinal();
         int fromRow = move.from().rank().ordinal();
@@ -137,7 +127,7 @@ public final class Board {
     }
 
     public @NotNull Board copy() {
-        var board = new Board(true);
+        var board = new Board();
         for (int rank = 0; rank < 8; rank++) {
             System.arraycopy(this.board[rank], 0, board.board[rank], 0, 8);
         }

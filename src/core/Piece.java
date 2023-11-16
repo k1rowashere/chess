@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-
 public record Piece(PieceType type, Color color) {
     public int value() {
         return switch (this.type) {
@@ -76,147 +75,148 @@ public record Piece(PieceType type, Color color) {
             case King -> Moves.king(square, this.color, castleRights);
         };
     }
-}
 
-class Moves {
-    protected static ArrayList<Square> king(Square square,
-                                            Color color,
-                                            CastleRights castleRights
-    ) {
-        var pairs = new int[][]{{1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1},
-                {-1, 1}, {-1, 0}, {-1, -1}};
+    private static class Moves {
+        static ArrayList<Square> king(Square square,
+                                      Color color,
+                                      CastleRights castleRights
+        ) {
+            var pairs = new int[][]{{1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1},
+                    {-1, 1}, {-1, 0}, {-1, -1}};
 
-        var moves = movesFromPairs(square, pairs);
+            var moves = movesFromPairs(square, pairs);
 
-        var canCastleKingside = switch (color) {
-            case White -> castleRights.whiteKingside();
-            case Black -> castleRights.blackKingside();
-        };
-        var canCastleQueenside = switch (color) {
-            case White -> castleRights.whiteQueenside();
-            case Black -> castleRights.blackQueenside();
-        };
+            var canCastleKingside = switch (color) {
+                case White -> castleRights.whiteKingside();
+                case Black -> castleRights.blackKingside();
+            };
+            var canCastleQueenside = switch (color) {
+                case White -> castleRights.whiteQueenside();
+                case Black -> castleRights.blackQueenside();
+            };
 
-        // Castling
-        if (!square.equals(new Square(File.E, Rank.One))
-                && !square.equals(new Square(File.E, Rank.Eight))) {
+            // Castling
+            if (!square.equals(new Square(File.E, Rank.One))
+                    && !square.equals(new Square(File.E, Rank.Eight))) {
+                return moves;
+            }
+            switch (color) {
+                case White -> {
+                    if (canCastleKingside)
+                        moves.add(new Square(File.G, Rank.One));
+                    if (canCastleQueenside)
+                        moves.add(new Square(File.C, Rank.One));
+                }
+                case Black -> {
+                    if (canCastleKingside)
+                        moves.add(new Square(File.G, Rank.Eight));
+                    if (canCastleQueenside)
+                        moves.add(new Square(File.C, Rank.Eight));
+                }
+            }
+
             return moves;
         }
-        switch (color) {
-            case White -> {
-                if (canCastleKingside)
-                    moves.add(new Square(File.G, Rank.One));
-                if (canCastleQueenside)
-                    moves.add(new Square(File.C, Rank.One));
-            }
-            case Black -> {
-                if (canCastleKingside)
-                    moves.add(new Square(File.G, Rank.Eight));
-                if (canCastleQueenside)
-                    moves.add(new Square(File.C, Rank.Eight));
-            }
+
+        static ArrayList<Square> bishop(Square square) {
+            var moves = new ArrayList<Square>();
+
+            // Iterate over all possible directions (diagonals)
+            // diagonal
+            // anti-diagonal
+            IntStream.rangeClosed(-7, 7)
+                    .filter(i -> i != 0)
+                    .forEach(i -> {
+                        square.add(i, i).ifPresent(moves::add);
+                        square.add(i, -i).ifPresent(moves::add);
+                    });
+
+            return moves;
         }
 
-        return moves;
-    }
+        static ArrayList<Square> rook(Square square) {
+            var startRank = square.rank();
+            var startFile = square.file();
+            var moves = new ArrayList<Square>();
 
-    protected static ArrayList<Square> bishop(Square square) {
-        var moves = new ArrayList<Square>();
+            Arrays.stream(Rank.values())
+                    .map(r -> new Square(startFile, r))
+                    .filter(s -> !s.equals(square))
+                    .collect(Collectors.toCollection(() -> moves));
 
-        // Iterate over all possible directions (diagonals)
-        // diagonal
-        // anti-diagonal
-        IntStream.rangeClosed(-7, 7)
-                .filter(i -> i != 0)
-                .forEach(i -> {
-                    square.add(i, i).ifPresent(moves::add);
-                    square.add(i, -i).ifPresent(moves::add);
-                });
+            Arrays.stream(File.values())
+                    .map(f -> new Square(f, startRank))
+                    .filter(s -> !s.equals(square))
+                    .collect(Collectors.toCollection(() -> moves));
 
-        return moves;
-    }
-
-    protected static ArrayList<Square> rook(Square square) {
-        var startRank = square.rank();
-        var startFile = square.file();
-        var moves = new ArrayList<Square>();
-
-        Arrays.stream(Rank.values())
-                .map(r -> new Square(startFile, r))
-                .filter(s -> !s.equals(square))
-                .collect(Collectors.toCollection(() -> moves));
-
-        Arrays.stream(File.values())
-                .map(f -> new Square(f, startRank))
-                .filter(s -> !s.equals(square))
-                .collect(Collectors.toCollection(() -> moves));
-
-        return moves;
-    }
-
-    protected static ArrayList<Square> knight(Square square) {
-        var pairs = new int[][]{{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2,
-                -1}, {-2, 1}, {-1, 2}};
-
-        return movesFromPairs(square, pairs);
-    }
-
-    protected static ArrayList<Square> pawn(
-            Square square,
-            Color color,
-            File enPassantTarget,
-            Board board
-    ) {
-        var moves = new ArrayList<Square>();
-        var direction = color == Color.White ? 1 : -1;
-
-        // Single forward
-        var inFront = square.add(0, direction);
-
-        if (inFront.isEmpty()) return moves;
-
-        if (board.getPiece(inFront.get()).isEmpty()) {
-            inFront.ifPresent(moves::add);
-
-            // Double forward
-            boolean onStartRank = square.rank() == Rank.Two && color == Color.White
-                    || square.rank() == Rank.Seven && color == Color.Black;
-
-            if (onStartRank) square.add(0, 2 * direction).ifPresent(moves::add);
+            return moves;
         }
 
-        var enPassantLeft = false;
-        var enPassantRight = false;
+        static ArrayList<Square> knight(Square square) {
+            var pairs = new int[][]{{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2,
+                    -1}, {-2, 1}, {-1, 2}};
 
-        if (enPassantTarget != null
-                && (square.rank() == Rank.Five && color == Color.White
-                || square.rank() == Rank.Four && color == Color.Black)
+            return movesFromPairs(square, pairs);
+        }
+
+        static ArrayList<Square> pawn(
+                Square square,
+                Color color,
+                File enPassantTarget,
+                Board board
         ) {
-            enPassantLeft = enPassantTarget == square.file().add(-1).orElse(null);
-            enPassantRight = enPassantTarget == square.file().add(1).orElse(null);
+            var moves = new ArrayList<Square>();
+            var direction = color == Color.White ? 1 : -1;
+
+            // Single forward
+            var inFront = square.add(0, direction);
+
+            if (inFront.isEmpty()) return moves;
+
+            if (board.getPiece(inFront.get()).isEmpty()) {
+                inFront.ifPresent(moves::add);
+
+                // Double forward
+                boolean onStartRank = square.rank() == Rank.Two && color == Color.White
+                        || square.rank() == Rank.Seven && color == Color.Black;
+
+                if (onStartRank)
+                    square.add(0, 2 * direction).ifPresent(moves::add);
+            }
+
+            var enPassantLeft = false;
+            var enPassantRight = false;
+
+            if (enPassantTarget != null
+                    && (square.rank() == Rank.Five && color == Color.White
+                    || square.rank() == Rank.Four && color == Color.Black)
+            ) {
+                enPassantLeft = enPassantTarget == square.file().add(-1).orElse(null);
+                enPassantRight = enPassantTarget == square.file().add(1).orElse(null);
+            }
+
+            // Left and right captures
+            Optional<Square> left = square.add(-1, direction);
+            Optional<Square> right = square.add(1, direction);
+
+            boolean canCaptureLeft = left
+                    .map(s -> board.getPiece(s).isPresent())
+                    .orElse(false);
+            boolean canCaptureRight = right
+                    .map(s -> board.getPiece(s).isPresent())
+                    .orElse(false);
+
+            if (canCaptureLeft || enPassantLeft) left.ifPresent(moves::add);
+            if (canCaptureRight || enPassantRight) right.ifPresent(moves::add);
+
+            return moves;
         }
 
-        // Left and right captures
-        Optional<Square> left = square.add(-1, direction);
-        Optional<Square> right = square.add(1, direction);
-
-        boolean canCaptureLeft = left
-                .map(s -> board.getPiece(s).isPresent())
-                .orElse(false);
-        boolean canCaptureRight = right
-                .map(s -> board.getPiece(s).isPresent())
-                .orElse(false);
-
-        if (canCaptureLeft || enPassantLeft) left.ifPresent(moves::add);
-        if (canCaptureRight || enPassantRight) right.ifPresent(moves::add);
-
-        return moves;
-    }
-
-    private static ArrayList<Square> movesFromPairs(Square start, int[][] pairs) {
-        return Arrays.stream(pairs)
-                .map(pair -> start.add(pair[0], pair[1]))
-                .flatMap(Optional::stream)
-                .collect(Collectors.toCollection(ArrayList::new));
+        private static ArrayList<Square> movesFromPairs(Square start, int[][] pairs) {
+            return Arrays.stream(pairs)
+                    .map(pair -> start.add(pair[0], pair[1]))
+                    .flatMap(Optional::stream)
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
     }
 }

@@ -13,6 +13,6 @@ public record Move(Square from, Square to, Optional<PieceType> promotion
     }
 
     public Move(Square from, Square to, PieceType promotion) {
-        this(from, to, Optional.of(promotion));
+        this(from, to, Optional.ofNullable(promotion));
     }
 }
