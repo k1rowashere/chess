@@ -1,7 +1,7 @@
 package core;
 
+import core.move.*;
 import core.square.File;
-import core.square.Move;
 import core.square.Rank;
 import core.square.Square;
 import org.jetbrains.annotations.NotNull;
@@ -10,10 +10,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-enum GameEndState {
-    Checkmate, Stalemate, Draw, None
-}
 
 record CastleRights(boolean whiteKingside, boolean whiteQueenside,
                     boolean blackKingside, boolean blackQueenside) {
@@ -67,8 +63,7 @@ public class ChessGame {
         this.enPassantTarget = null;
     }
 
-    // TODO: make this return a Algebraic Notation Move struct
-    public void move(Move move) throws IllegalArgumentException {
+    public QualifiedMove move(Move move) throws IllegalArgumentException {
         /* List of steps:
          * 1. Validate move
          * 2. Move piece
@@ -88,8 +83,14 @@ public class ChessGame {
         var piece = this.board.getPiece(source).orElseThrow();
         var capturedPiece = this.board.getPiece(target);
 
-        this.board.move(move);
+        var retMove = new QualifiedMoveBuilder();
 
+        retMove.piece(piece.piece())
+                .source(source)
+                .target(target)
+                .capture(capturedPiece.map(BoardPiece::type).orElse(null));
+
+        this.board.move(move);
 
         // Promotion & En passant
         if (piece.type() == PieceType.Pawn) {
@@ -101,6 +102,8 @@ public class ChessGame {
                                 piece.color()
                         )
                 );
+
+                retMove.promotion(move.promotion().orElse(null));
             }
 
             // Remove captured pawn
@@ -108,6 +111,8 @@ public class ChessGame {
                 // TODO: use a capture method (to keep track of captured pieces)
                 // the fifty move rule is reset anyway because of the pawn move
                 this.board.removePiece(new Square(source.file(), target.rank()));
+                retMove.enPassant(true)
+                        .capture(PieceType.Pawn);
             }
 
             // En passant target to check for en passant next turn
@@ -135,6 +140,12 @@ public class ChessGame {
                 default -> throw new RuntimeException("Invalid castle");
             };
             this.board.move(new Move(rookFrom, rookTo));
+
+            retMove.castle(switch (target.file()) {
+                case C -> CastleType.Long;
+                case G -> CastleType.Short;
+                default -> throw new RuntimeException("Invalid castle");
+            });
         }
 
         // Update Castling Rights
@@ -153,16 +164,19 @@ public class ChessGame {
                 this.castleRights = cr.disableKingside(Color.Black);
         }
 
+
+        // reset fifty move rule
+        if (capturedPiece.isPresent() || piece.type() == PieceType.Pawn) {
+            this.fiftyMoveRuleStates = 0;
+        } else this.fiftyMoveRuleStates++;
+
         // Update turn
         this.toMove = this.toMove == Color.White ? Color.Black : Color.White;
 
-        // reset fifty move rule
-        if (capturedPiece.isPresent() || piece.type() == PieceType.Pawn)
-            this.fiftyMoveRuleStates = 0;
-        else this.fiftyMoveRuleStates++;
-
         // game over conditions
-        System.out.println(gameEndConditions());
+        retMove.status(gameStateCheck());
+
+        return retMove.build();
     }
 
     public boolean isLegalMove(@NotNull Move move) {
@@ -175,7 +189,7 @@ public class ChessGame {
                 .orElse(new ArrayList<>());
     }
 
-    private GameEndState gameEndConditions() {
+    private GameStatus gameStateCheck() {
         Function<Color, Boolean> isInsufficientMaterial = (color) -> {
             var material = this.board.getPieces().stream()
                     .filter(p -> p.color() == color)
@@ -190,7 +204,8 @@ public class ChessGame {
             };
         };
 
-        boolean noLegalMoves = this.board.getPieces()
+        var isCheck = isCheck();
+        var noLegalMoves = this.board.getPieces()
                 .stream()
                 .filter(p -> p.color() == this.toMove)
                 .map(this::getLegalMoves)
@@ -199,35 +214,42 @@ public class ChessGame {
 
         // TODO: implement threefold repetition
         var threeFoldRepetition = false;
-        boolean draw = (isInsufficientMaterial.apply(Color.Black)
+        var draw = (isInsufficientMaterial.apply(Color.Black)
                 && isInsufficientMaterial.apply(Color.White))
                 || fiftyMoveRuleStates == 50
                 || threeFoldRepetition;
 
+
         if (noLegalMoves) {
-            return isCheck()
-                    ? GameEndState.Checkmate
-                    : GameEndState.Stalemate;
+            return isCheck ? switch (this.toMove) {
+                case White -> GameStatus.BlackWins;
+                case Black -> GameStatus.WhiteWins;
+            } : GameStatus.Draw;
         } else if (draw) {
-            return GameEndState.Draw;
+            return GameStatus.Draw;
+        } else if (isCheck) {
+            return GameStatus.Check;
         } else {
-            return GameEndState.None;
+            return GameStatus.InProgress;
         }
 
     }
 
+    /**
+     * @param piece
+     * @return
+     */
     private ArrayList<Square> getLegalMoves(@NotNull BoardPiece piece) {
         if (piece.color() != this.toMove) return new ArrayList<>();
 
         return piece
                 .getMoves(this.board, this.enPassantTarget, getCastleRights())
                 .stream()
-                .filter(to -> board.getPiece(to)
+                .filter(target -> board.getPiece(target)
                         .map(p -> piece.color() != p.color())
-                        .orElse(true)
-                )
-                .filter(to -> lineOfSight(piece, to))
-                .filter(to -> !isCheck(new Move(piece.square(), to)))
+                        .orElse(true))
+                .filter(target -> lineOfSight(piece, target))
+                .filter(target -> !isCheck(new Move(piece.square(), target)))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 

@@ -1,7 +1,7 @@
 package core;
 
+import core.move.Move;
 import core.square.File;
-import core.square.Move;
 import core.square.Rank;
 import core.square.Square;
 import org.jetbrains.annotations.NotNull;

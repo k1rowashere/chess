@@ -51,6 +51,14 @@ public record Piece(PieceType type, Color color) {
         return ' ';
     }
 
+    /**
+     * @param square          The square the piece is on
+     * @param board           The board the piece is on
+     * @param enPassantTarget The file of the en passant target square, or null if there is none
+     * @param castleRights    The current castle rights
+     * @return A list of all possible moves for the piece (not taking into
+     * account check and pins/lines of sight).
+     */
     ArrayList<Square> getMoves(Square square,
                                @NotNull final Board board,
                                File enPassantTarget,
@@ -68,8 +76,6 @@ public record Piece(PieceType type, Color color) {
             case King -> Moves.king(square, this.color, castleRights);
         };
     }
-
-
 }
 
 class Moves {

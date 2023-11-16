@@ -4,25 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lab7.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/Board.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/ChessGame.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/Color.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/Piece.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/PieceType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/square/File.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/square/Move.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/square/Rank.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/square/Square.java" afterDir="false" />
+    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="init">
+      <change afterPath="$PROJECT_DIR$/src/core/QualifiedMove/CastleType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/core/QualifiedMove/GameStatus.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/core/QualifiedMove/QualifiedMove.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/core/QualifiedMove/QualifiedMoveBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/ChessGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGame.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/Piece.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/Piece.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/square/Move.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/square/Move.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,7 +68,7 @@
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.2",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "actions.on.save"
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -105,6 +95,15 @@
       <option name="presentableId" value="Default" />
       <updated>1699982088435</updated>
     </task>
+    <task id="LOCAL-00001" summary="init">
+      <option name="closed" value="true" />
+      <created>1700149648233</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1700149648233</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -112,11 +111,21 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="init" />
+    <option name="LAST_COMMIT_MESSAGE" value="init" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
