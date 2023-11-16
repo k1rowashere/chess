@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/Board.java" afterDir="false" />
+    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="Three fold repetition + refactoring">
       <change beforePath="$PROJECT_DIR$/src/core/ChessGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGame.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -93,6 +90,15 @@
       <option name="presentableId" value="Default" />
       <updated>1699982088435</updated>
     </task>
+    <task id="LOCAL-00001" summary="Three fold repetition + refactoring">
+      <option name="closed" value="true" />
+      <created>1700164746179</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1700164746179</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -108,6 +114,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="Three fold repetition + refactoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="Three fold repetition + refactoring" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

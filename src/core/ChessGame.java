@@ -184,7 +184,22 @@ public class ChessGame {
         this.toMove = this.toMove == Color.White ? Color.Black : Color.White;
 
         // game over conditions
-        GameStatus result;
+        retMove.status(gameStateCheck());
+
+        return retMove.build();
+    }
+
+    public boolean isLegalMove(@NotNull Move move) {
+        return getLegalMoves(move.from()).contains(move.to());
+    }
+
+    public ArrayList<Square> getLegalMoves(Square square) {
+        return board.getPiece(square)
+                .map(this::getLegalMoves)
+                .orElse(new ArrayList<>());
+    }
+
+    private GameStatus gameStateCheck() {
         Function<Color, Boolean> isInsufficientMaterial = (color) -> {
             var material = this.board.getPieces().stream()
                     .filter(p -> p.color() == color)
@@ -216,38 +231,25 @@ public class ChessGame {
 
 
         if (noLegalMoves) {
-            result = isCheck ? switch (this.toMove) {
+            return isCheck ? switch (this.toMove) {
                 case Black -> GameStatus.BlackWins;
                 case White -> GameStatus.WhiteWins;
             } : GameStatus.Stalemate;
         } else if (fiftyMoveRuleStates == 50) {
-            result = GameStatus.Draw;
+            return GameStatus.Draw;
         } else if (threeFoldRepetition) {
-            result = GameStatus.Draw;
+            return GameStatus.Draw;
         } else if (isInsufficientMaterial.apply(Color.Black)
                 && isInsufficientMaterial.apply(Color.White)) {
-            result = GameStatus.InsufficientMaterial;
+            return GameStatus.InsufficientMaterial;
         } else {
             if (isCheck) {
-                result = GameStatus.Check;
+                return GameStatus.Check;
             } else {
-                result = GameStatus.InProgress;
+                return GameStatus.InProgress;
             }
         }
 
-        retMove.status(result);
-
-        return retMove.build();
-    }
-
-    public boolean isLegalMove(@NotNull Move move) {
-        return getLegalMoves(move.from()).contains(move.to());
-    }
-
-    public ArrayList<Square> getLegalMoves(Square square) {
-        return board.getPiece(square)
-                .map(this::getLegalMoves)
-                .orElse(new ArrayList<>());
     }
 
     /**
