@@ -91,8 +91,8 @@ public final class Board {
     }
 
     public Optional<BoardPiece> getPiece(@NotNull Square square) {
-        int col = square.file().ordinal();
         int row = square.rank().ordinal();
+        int col = square.file().ordinal();
 
         return Optional.ofNullable(this.board[row][col])
                 .map(piece -> new BoardPiece(piece, square));
@@ -135,15 +135,15 @@ public final class Board {
     }
 
     public void setPiece(@NotNull Square square, Piece boardPiece) {
-        int row = square.file().ordinal();
-        int col = square.rank().ordinal();
+        int row = square.rank().ordinal();
+        int col = square.file().ordinal();
 
         this.board[row][col] = boardPiece;
     }
 
     public void removePiece(@NotNull Square square) {
-        int row = square.file().ordinal();
-        int col = square.rank().ordinal();
+        int row = square.rank().ordinal();
+        int col = square.file().ordinal();
 
         this.board[row][col] = null;
     }

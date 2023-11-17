@@ -121,11 +121,9 @@ public class ChessGame {
                 retMove.promotion(move.promotion().orElse(null));
             }
 
-            // Remove captured pawn
+            // Enpassant Remove captured pawn
             if (target.file() != source.file() && capturedPiece.isEmpty()) {
-                // TODO: use a capture method (to keep track of captured pieces)
-                // the fifty move rule is reset anyway because of the pawn move
-                this.board.removePiece(new Square(source.file(), target.rank()));
+                this.board.removePiece(new Square(target.file(), source.rank()));
                 retMove.enPassant(true)
                         .capture(PieceType.Pawn);
             }
@@ -339,7 +337,7 @@ public class ChessGame {
         return board.getPieces()
                 .stream()
                 .filter(piece -> piece.color() != this.toMove)
-                .filter(p -> lineOfSight(p, king.square()))
+                .filter(p -> lineOfSight(p, king.square(), board))
                 .flatMap(p -> p.getMoves(board, this.enPassantTarget, this.castleRights).stream())
                 .anyMatch(s -> s.equals(king.square()));
     }
@@ -358,6 +356,23 @@ public class ChessGame {
      * to check if a piece can move to a square
      */
     private boolean lineOfSight(@NotNull BoardPiece piece, Square target) {
+        return lineOfSight(piece, target, this.board);
+    }
+
+    /**
+     * @param piece  the piece to check
+     * @param target the target square to check
+     * @param board  the board to check on
+     * @return if there are no pieces between piece and target
+     * @implNote this method assumes that piece and target are on the same
+     * rank, file, or diagonal.
+     * <p>
+     * It does not check if piece can actually move to the target, but that
+     * it can potentially "see" it.
+     * use in conjunction with {@link BoardPiece#getMoves}
+     * to check if a piece can move to a square
+     */
+    private boolean lineOfSight(@NotNull BoardPiece piece, Square target, Board board) {
         var source = piece.square();
 
         // pieces can't move to their own square
@@ -376,7 +391,7 @@ public class ChessGame {
 
             if (source.equals(target)) return true;
 
-            if (this.board.getPiece(source).isPresent())
+            if (board.getPiece(source).isPresent())
                 return false;
         }
     }
