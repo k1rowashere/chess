@@ -109,7 +109,7 @@ public class ChessGame {
         // Promotion & En passant
         if (piece.type() == PieceType.Pawn) {
             // Promotion
-            if (target.rank() == Rank.Eight || target.rank() == Rank.One) {
+            if (target.rank() == Rank._8 || target.rank() == Rank._1) {
                 this.board.setPiece(
                         target,
                         new Piece(move.promotion()
@@ -169,13 +169,13 @@ public class ChessGame {
         }
         if (piece.type() == PieceType.Rook) {
             var cr = this.castleRights;
-            if (piece.square().equals(new Square(File.A, Rank.One)))
+            if (piece.square().equals(new Square(File.A, Rank._1)))
                 this.castleRights = cr.disableQueenside(Color.White);
-            else if (piece.square().equals(new Square(File.H, Rank.One)))
+            else if (piece.square().equals(new Square(File.H, Rank._1)))
                 this.castleRights = cr.disableKingside(Color.White);
-            else if (piece.square().equals(new Square(File.A, Rank.Eight)))
+            else if (piece.square().equals(new Square(File.A, Rank._8)))
                 this.castleRights = cr.disableQueenside(Color.Black);
-            else if (piece.square().equals(new Square(File.H, Rank.Eight)))
+            else if (piece.square().equals(new Square(File.H, Rank._8)))
                 this.castleRights = cr.disableKingside(Color.Black);
         }
 
@@ -251,8 +251,8 @@ public class ChessGame {
 
         if (noLegalMoves) {
             return isCheck ? switch (this.toMove) {
-                case Black -> GameStatus.BlackWins;
-                case White -> GameStatus.WhiteWins;
+                case Black -> GameStatus.WhiteWins;
+                case White -> GameStatus.BlackWins;
             } : GameStatus.Stalemate;
         } else if (fiftyMoveRuleStates == 50) {
             return GameStatus.Draw;
@@ -297,8 +297,8 @@ public class ChessGame {
         var square = king.square();
 
         var canCastle = switch (king.color()) {
-            case White -> square.equals(new Square(File.E, Rank.One));
-            case Black -> square.equals(new Square(File.E, Rank.Eight));
+            case White -> square.equals(new Square(File.E, Rank._1));
+            case Black -> square.equals(new Square(File.E, Rank._8));
         } && !isInCheck();
 
         var kingSideCheck = isInCheck(new Move(square, square.uncheckedAdd(1, 0)));

@@ -4,7 +4,7 @@ package core.square;
 import java.util.Optional;
 
 public enum Rank {
-    One, Two, Three, Four, Five, Six, Seven, Eight;
+    _1, _2, _3, _4, _5, _6, _7, _8;
 
 
     public Optional<Rank> add(int i) {

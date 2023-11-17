@@ -96,22 +96,22 @@ public record Piece(PieceType type, Color color) {
             };
 
             // Castling
-            if (!square.equals(new Square(File.E, Rank.One))
-                    && !square.equals(new Square(File.E, Rank.Eight))) {
+            if (!square.equals(new Square(File.E, Rank._1))
+                    && !square.equals(new Square(File.E, Rank._8))) {
                 return moves;
             }
             switch (color) {
                 case White -> {
                     if (canCastleKingside)
-                        moves.add(new Square(File.G, Rank.One));
+                        moves.add(new Square(File.G, Rank._1));
                     if (canCastleQueenside)
-                        moves.add(new Square(File.C, Rank.One));
+                        moves.add(new Square(File.C, Rank._1));
                 }
                 case Black -> {
                     if (canCastleKingside)
-                        moves.add(new Square(File.G, Rank.Eight));
+                        moves.add(new Square(File.G, Rank._8));
                     if (canCastleQueenside)
-                        moves.add(new Square(File.C, Rank.Eight));
+                        moves.add(new Square(File.C, Rank._8));
                 }
             }
 
@@ -177,8 +177,8 @@ public record Piece(PieceType type, Color color) {
                 inFront.ifPresent(moves::add);
 
                 // Double forward
-                boolean onStartRank = square.rank() == Rank.Two && color == Color.White
-                        || square.rank() == Rank.Seven && color == Color.Black;
+                boolean onStartRank = square.rank() == Rank._2 && color == Color.White
+                        || square.rank() == Rank._7 && color == Color.Black;
 
                 if (onStartRank)
                     square.add(0, 2 * direction).ifPresent(moves::add);
@@ -188,8 +188,8 @@ public record Piece(PieceType type, Color color) {
             var enPassantRight = false;
 
             if (enPassantTarget != null
-                    && (square.rank() == Rank.Five && color == Color.White
-                    || square.rank() == Rank.Four && color == Color.Black)
+                    && (square.rank() == Rank._5 && color == Color.White
+                    || square.rank() == Rank._4 && color == Color.Black)
             ) {
                 enPassantLeft = enPassantTarget == square.file().add(-1).orElse(null);
                 enPassantRight = enPassantTarget == square.file().add(1).orElse(null);

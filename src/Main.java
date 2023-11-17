@@ -6,37 +6,33 @@ import core.move.QualifiedMove;
 import core.square.File;
 import core.square.Square;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(new java.io.File("ChessGame.txt"));
-        FileWriter writer = new FileWriter("Output.txt");
         ChessGame game = new ChessGame();
 
         boolean gameEnded = false;
         while (scanner.hasNextLine()) {
             String[] line = scanner.nextLine().split(",");
             if (gameEnded) {
-                writer.write("Game has ended\n");
+                System.out.println("Game already ended");
                 continue;
             }
-            gameEnded = gameLoop(line, writer, game);
+            gameEnded = gameLoop(line, game);
         }
-        writer.close();
     }
 
-    private static boolean gameLoop(String[] line, FileWriter writer, ChessGame game)
-            throws IOException {
+    private static boolean gameLoop(String[] line, ChessGame game) {
         PieceType promotion = null;
         if (line.length == 3) {
             promotion = switch (line[2]) {
-                case "Queen" -> PieceType.Queen;
-                case "Rook" -> PieceType.Rook;
-                case "Bishop" -> PieceType.Bishop;
-                case "Knight" -> PieceType.Knight;
+                case "Q" -> PieceType.Queen;
+                case "R" -> PieceType.Rook;
+                case "B" -> PieceType.Bishop;
+                case "K" -> PieceType.Knight;
                 default -> null;
             };
         }
@@ -49,37 +45,37 @@ public class Main {
                             promotion)
             );
         } catch (Exception e) {
-            writer.write("Invalid Move\n");
+            System.out.println("Invalid Move");
             return false;
         }
 
         if (move.castle() != CastleType.None)
-            writer.write(move.castle() + "\n");
+            System.out.println(move.castle());
 
         if (move.enPassant())
-            writer.write("En Passant\n");
+            System.out.println("Enpassant");
 
         if (move.capture() != null)
-            writer.write("Captured " + move.capture() + "\n");
+            System.out.println("Captured " + move.capture());
 
         switch (move.status()) {
             case Check -> {
                 switch (move.piece().color()) {
-                    case White -> writer.write("Black in check\n");
-                    case Black -> writer.write("White in check\n");
+                    case White -> System.out.println("Black in check");
+                    case Black -> System.out.println("White in check");
                 }
             }
-            case WhiteWins -> writer.write("White Won\n");
-            case BlackWins -> writer.write("Black Won\n");
-            case Stalemate -> writer.write("Stalemate\n");
-            case Draw -> writer.write("Draw\n");
+            case WhiteWins -> System.out.println("White Won");
+            case BlackWins -> System.out.println("Black Won");
+            case Stalemate -> System.out.println("Stalemate");
+            case Draw -> System.out.println("Draw");
             case InsufficientMaterial ->
-                    writer.write("Insufficient Material\n");
+                    System.out.println("Insufficient Material");
         }
 
         return switch (move.status()) {
-            case WhiteWins, BlackWins, Stalemate, Draw, InsufficientMaterial ->
-                    true;
+            case WhiteWins, BlackWins, Stalemate,
+                    Draw, InsufficientMaterial -> true;
             case Check, InProgress -> false;
         };
     }
@@ -99,14 +95,14 @@ public class Main {
                     throw new IllegalStateException("Unexpected value: " + line.charAt(0));
         };
         var Rank = switch (line.charAt(1)) {
-            case '1' -> core.square.Rank.One;
-            case '2' -> core.square.Rank.Two;
-            case '3' -> core.square.Rank.Three;
-            case '4' -> core.square.Rank.Four;
-            case '5' -> core.square.Rank.Five;
-            case '6' -> core.square.Rank.Six;
-            case '7' -> core.square.Rank.Seven;
-            case '8' -> core.square.Rank.Eight;
+            case '1' -> core.square.Rank._1;
+            case '2' -> core.square.Rank._2;
+            case '3' -> core.square.Rank._3;
+            case '4' -> core.square.Rank._4;
+            case '5' -> core.square.Rank._5;
+            case '6' -> core.square.Rank._6;
+            case '7' -> core.square.Rank._7;
+            case '8' -> core.square.Rank._8;
             default ->
                     throw new IllegalStateException("Unexpected value: " + line.charAt(1));
         };
