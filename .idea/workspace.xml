@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="refactor + testGame">
+    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="fixed blocking checks + more tests">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/Board.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/ChessGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/ChessGameTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGameTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/move/Move.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/move/Move.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -188,7 +187,15 @@
       <option name="project" value="LOCAL" />
       <updated>1700254840138</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="fixed blocking checks + more tests">
+      <option name="closed" value="true" />
+      <created>1700258291231</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1700258291231</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -207,16 +214,12 @@
     <MESSAGE value="Three fold repetition + refactoring" />
     <MESSAGE value="small refactor" />
     <MESSAGE value="refactor + testGame" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor + testGame" />
+    <MESSAGE value="fixed blocking checks + more tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed blocking checks + more tests" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/core/ChessGame.java</url>
-          <line>91</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/core/ChessGameTest.java</url>
           <line>181</line>

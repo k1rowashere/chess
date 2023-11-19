@@ -121,7 +121,7 @@ public class ChessGame {
                 retMove.promotion(move.promotion().orElse(null));
             }
 
-            // Enpassant Remove captured pawn
+            // EnPassant Remove captured pawn
             if (target.file() != source.file() && capturedPiece.isEmpty()) {
                 this.board.removePiece(new Square(target.file(), source.rank()));
                 retMove.enPassant(true)
@@ -133,6 +133,8 @@ public class ChessGame {
                 case 2, -2 -> this.enPassantTarget = target.file();
                 default -> this.enPassantTarget = null;
             }
+        } else {
+            this.enPassantTarget = null;
         }
 
         // Castle

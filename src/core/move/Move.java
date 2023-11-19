@@ -5,8 +5,7 @@ import core.square.Square;
 
 import java.util.Optional;
 
-public record Move(Square from, Square to, Optional<PieceType> promotion
-) {
+public record Move(Square from, Square to, Optional<PieceType> promotion) {
 
     public Move(Square from, Square to) {
         this(from, to, Optional.empty());
