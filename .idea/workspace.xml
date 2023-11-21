@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="fixed blocking checks + more tests">
+    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="File Bomb">
+      <change afterPath="$PROJECT_DIR$/ChessGame.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/ChessGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/move/Move.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/move/Move.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lab7.iml" beforeDir="false" afterPath="$PROJECT_DIR$/lab7.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/ChessGameTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGameTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,8 +19,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="JUnit5 Test Class" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -31,14 +33,14 @@
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
     &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;k1rowashere&quot;
+    &quot;assignee&quot;: &quot;Noureldeen73&quot;
   }
 }</component>
   <component name="GithubPullRequestsUISettings">
     <option name="selectedUrlAndAccountId">
       <UrlAndAccount>
-        <option name="accountId" value="c4bcaa5f-a098-4bfe-a08c-ff3c3b60da4b" />
-        <option name="url" value="https://github.com/k1rowashere/chess" />
+        <option name="accountId" value="2c82502a-3c22-4b42-ab4d-232cc49c0ef7" />
+        <option name="url" value="https://github.com/k1rowashere/chess.git" />
       </UrlAndAccount>
     </option>
   </component>
@@ -74,12 +76,12 @@
     &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
     &quot;create.test.in.the.same.root&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Global Libraries&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
     &quot;rearrange.code.on.save&quot;: &quot;true&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;actions.on.save&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -97,63 +99,6 @@
       <recent name="core" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.ChessGameTest.testPromotion">
-    <configuration name="ChessGameTest.test" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="lab7" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="core.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="core" />
-      <option name="MAIN_CLASS_NAME" value="core.ChessGameTest" />
-      <option name="METHOD_NAME" value="test" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ChessGameTest.testEnPassant" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="lab7" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="core.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="core" />
-      <option name="MAIN_CLASS_NAME" value="core.ChessGameTest" />
-      <option name="METHOD_NAME" value="testEnPassant" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ChessGameTest.testPromotion" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="lab7" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="core.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="core" />
-      <option name="MAIN_CLASS_NAME" value="core.ChessGameTest" />
-      <option name="METHOD_NAME" value="testPromotion" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="JUnit.ChessGameTest.testPromotion" />
-        <item itemvalue="JUnit.ChessGameTest.testEnPassant" />
-        <item itemvalue="JUnit.ChessGameTest.test" />
-      </list>
-    </recent_temporary>
-  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -163,39 +108,15 @@
       <option name="presentableId" value="Default" />
       <updated>1699982088435</updated>
     </task>
-    <task id="LOCAL-00001" summary="Three fold repetition + refactoring">
+    <task id="LOCAL-00001" summary="File Bomb">
       <option name="closed" value="true" />
-      <created>1700164746179</created>
+      <created>1700162353476</created>
       <option name="number" value="00001" />
       <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1700164746179</updated>
+      <updated>1700162353476</updated>
     </task>
-    <task id="LOCAL-00002" summary="small refactor">
-      <option name="closed" value="true" />
-      <created>1700164829917</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1700164829917</updated>
-    </task>
-    <task id="LOCAL-00003" summary="refactor + testGame">
-      <option name="closed" value="true" />
-      <created>1700254840137</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1700254840138</updated>
-    </task>
-    <task id="LOCAL-00004" summary="fixed blocking checks + more tests">
-      <option name="closed" value="true" />
-      <created>1700258291231</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1700258291231</updated>
-    </task>
-    <option name="localTasksCounter" value="5" />
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -211,20 +132,16 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Three fold repetition + refactoring" />
-    <MESSAGE value="small refactor" />
-    <MESSAGE value="refactor + testGame" />
-    <MESSAGE value="fixed blocking checks + more tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed blocking checks + more tests" />
+    <MESSAGE value="File Bomb" />
+    <option name="LAST_COMMIT_MESSAGE" value="File Bomb" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/core/ChessGameTest.java</url>
-          <line>181</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.io.FileNotFoundException" package="java.io" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>

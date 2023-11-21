@@ -50,7 +50,7 @@ public class Main {
         }
 
         if (move.castle() != CastleType.None)
-            System.out.println(move.castle());
+            System.out.println("Castle");
 
         if (move.enPassant())
             System.out.println("Enpassant");
@@ -69,8 +69,7 @@ public class Main {
             case BlackWins -> System.out.println("Black Won");
             case Stalemate -> System.out.println("Stalemate");
             case Draw -> System.out.println("Draw");
-            case InsufficientMaterial ->
-                    System.out.println("Insufficient Material");
+            case InsufficientMaterial -> System.out.println("Insufficient Material");
         }
 
         return switch (move.status()) {
@@ -91,8 +90,7 @@ public class Main {
             case 'f' -> File.F;
             case 'g' -> File.G;
             case 'h' -> File.H;
-            default ->
-                    throw new IllegalStateException("Unexpected value: " + line.charAt(0));
+            default -> throw new IllegalStateException("Unexpected value: " + line.charAt(0));
         };
         var Rank = switch (line.charAt(1)) {
             case '1' -> core.square.Rank._1;
@@ -103,8 +101,7 @@ public class Main {
             case '6' -> core.square.Rank._6;
             case '7' -> core.square.Rank._7;
             case '8' -> core.square.Rank._8;
-            default ->
-                    throw new IllegalStateException("Unexpected value: " + line.charAt(1));
+            default -> throw new IllegalStateException("Unexpected value: " + line.charAt(1));
         };
         return new Square(file, Rank);
     }
