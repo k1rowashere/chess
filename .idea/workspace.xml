@@ -4,10 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="fixed blocking checks + more tests">
+    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="fixed En passant edge case">
+      <change afterPath="$PROJECT_DIR$/resources/skins/default/black/bishop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/skins/default/black/king.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/skins/default/black/knight.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/skins/default/black/pawn.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/skins/default/black/queen.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/skins/default/black/rook.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/skins/default/white/bishop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/skins/default/white/king.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/skins/default/white/knigh.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/skins/default/white/pawn.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/skins/default/white/queen.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/skins/default/white/rook.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gui/Game.form" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gui/Game.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/ChessGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/move/Move.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/move/Move.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,8 +31,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="JUnit5 Test Class" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -74,20 +88,26 @@
     &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
     &quot;create.test.in.the.same.root&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/kiro/Projects/coleg/lab7/resources/skins/default/white&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;rearrange.code.on.save&quot;: &quot;true&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;actions.on.save&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="core" />
     </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/resources/skins/default/white" />
+    </key>
     <key name="CreateTestDialog.Recents.Supers">
       <recent name="" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/resources/skins/default/black" />
     </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="core" />
@@ -97,7 +117,14 @@
       <recent name="core" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.ChessGameTest.testPromotion">
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="Main" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Main" />
+      <module name="lab7" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ChessGameTest.test" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="lab7" />
       <extension name="coverage">
@@ -146,6 +173,12 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="Application.Main" />
+      <item itemvalue="JUnit.ChessGameTest.test" />
+      <item itemvalue="JUnit.ChessGameTest.testEnPassant" />
+      <item itemvalue="JUnit.ChessGameTest.testPromotion" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="JUnit.ChessGameTest.testPromotion" />
@@ -195,7 +228,15 @@
       <option name="project" value="LOCAL" />
       <updated>1700258291231</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="fixed En passant edge case">
+      <option name="closed" value="true" />
+      <created>1700412628429</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1700412628429</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -215,7 +256,8 @@
     <MESSAGE value="small refactor" />
     <MESSAGE value="refactor + testGame" />
     <MESSAGE value="fixed blocking checks + more tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed blocking checks + more tests" />
+    <MESSAGE value="fixed En passant edge case" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed En passant edge case" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -224,6 +266,16 @@
           <url>file://$PROJECT_DIR$/src/core/ChessGameTest.java</url>
           <line>181</line>
           <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/core/ChessGame.java</url>
+          <line>280</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/core/Piece.java</url>
+          <line>26</line>
+          <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

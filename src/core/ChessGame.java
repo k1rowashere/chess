@@ -301,16 +301,18 @@ public class ChessGame {
             case Black -> square.equals(new Square(File.E, Rank._8));
         } && !isInCheck();
 
+        if (!canCastle) return new CastleRights(false, false, false, false);
+
         var kingSideCheck = isInCheck(new Move(square, square.uncheckedAdd(1, 0)));
         var queenSideCheck = isInCheck(new Move(square, square.uncheckedAdd(-1, 0)))
                 || isInCheck(new Move(square, square.uncheckedAdd(-2, 0)));
 
-        return canCastle ? new CastleRights(
+        return new CastleRights(
                 !kingSideCheck && this.castleRights.whiteKingside(),
                 !queenSideCheck && this.castleRights.whiteQueenside(),
                 !kingSideCheck && this.castleRights.blackKingside(),
                 !queenSideCheck && this.castleRights.blackQueenside()
-        ) : new CastleRights(false, false, false, false);
+        );
     }
 
     /**

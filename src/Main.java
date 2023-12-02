@@ -3,26 +3,32 @@ import core.PieceType;
 import core.move.CastleType;
 import core.move.Move;
 import core.move.QualifiedMove;
-import core.square.File;
 import core.square.Square;
+import gui.Game;
 
-import java.io.IOException;
-import java.util.Scanner;
+import javax.swing.*;
+
+import static core.square.File.*;
+import static core.square.Rank.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(new java.io.File("ChessGame.txt"));
-        ChessGame game = new ChessGame();
+//    public static void main(String[] args) throws IOException {
+//        Scanner scanner = new Scanner(new java.io.File("ChessGame.txt"));
+//        ChessGame game = new ChessGame();
+//
+//        boolean gameEnded = false;
+//        while (scanner.hasNextLine()) {
+//            String[] line = scanner.nextLine().split(",");
+//            if (gameEnded) {
+//                System.out.println("Game already ended");
+//                continue;
+//            }
+//            gameEnded = gameLoop(line, game);
+//        }
+//    }
 
-        boolean gameEnded = false;
-        while (scanner.hasNextLine()) {
-            String[] line = scanner.nextLine().split(",");
-            if (gameEnded) {
-                System.out.println("Game already ended");
-                continue;
-            }
-            gameEnded = gameLoop(line, game);
-        }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new Game().setVisible(true));
     }
 
     private static boolean gameLoop(String[] line, ChessGame game) {
@@ -83,26 +89,26 @@ public class Main {
 
     private static Square parseSquare(String line) {
         var file = switch (line.charAt(0)) {
-            case 'a' -> File.A;
-            case 'b' -> File.B;
-            case 'c' -> File.C;
-            case 'd' -> File.D;
-            case 'e' -> File.E;
-            case 'f' -> File.F;
-            case 'g' -> File.G;
-            case 'h' -> File.H;
+            case 'a' -> A;
+            case 'b' -> B;
+            case 'c' -> C;
+            case 'd' -> D;
+            case 'e' -> E;
+            case 'f' -> F;
+            case 'g' -> G;
+            case 'h' -> H;
             default ->
                     throw new IllegalStateException("Unexpected value: " + line.charAt(0));
         };
         var Rank = switch (line.charAt(1)) {
-            case '1' -> core.square.Rank._1;
-            case '2' -> core.square.Rank._2;
-            case '3' -> core.square.Rank._3;
-            case '4' -> core.square.Rank._4;
-            case '5' -> core.square.Rank._5;
-            case '6' -> core.square.Rank._6;
-            case '7' -> core.square.Rank._7;
-            case '8' -> core.square.Rank._8;
+            case '1' -> _1;
+            case '2' -> _2;
+            case '3' -> _3;
+            case '4' -> _4;
+            case '5' -> _5;
+            case '6' -> _6;
+            case '7' -> _7;
+            case '8' -> _8;
             default ->
                     throw new IllegalStateException("Unexpected value: " + line.charAt(1));
         };
