@@ -1,17 +1,20 @@
+import core.ChessBoard;
 import core.ChessGame;
-import core.PieceType;
-import core.move.CastleType;
-import core.move.Move;
-import core.move.QualifiedMove;
-import core.square.File;
-import core.square.Square;
 
+import javax.swing.*;
 import java.io.IOException;
-import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(new java.io.File("ChessGame.txt"));
+        JFrame frame = new JFrame("ChessBoard");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 800);
+        frame.setContentPane(new ChessBoard(new ChessGame()).getMain());
+        frame.setVisible(true);
+
+
+    }
+/*        Scanner scanner = new Scanner(new java.io.File("ChessGame.txt"));
         ChessGame game = new ChessGame();
 
         boolean gameEnded = false;
@@ -104,5 +107,5 @@ public class Main {
             default -> throw new IllegalStateException("Unexpected value: " + line.charAt(1));
         };
         return new Square(file, Rank);
-    }
+    }*/
 }

@@ -4,11 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="File Bomb">
+    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="Fixed castle print">
+      <change afterPath="$PROJECT_DIR$/BlackBishop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BlackKing.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BlackKnight.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BlackPawn.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BlackQueen.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BlackRook.png" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/ChessGame.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/WhiteBishop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/WhiteKing.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/WhiteKnight.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/WhitePawn.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/WhiteQueen.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/WhiteRook.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/core/ChessBoard.form" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/core/ChessBoard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lab7.iml" beforeDir="false" afterPath="$PROJECT_DIR$/lab7.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/ChessGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGame.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/ChessGameTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGameTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -72,6 +88,8 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;UI_DESIGNER_EDITOR_MODE.PaletteManager.WIDTH&quot;: &quot;131&quot;,
+    &quot;UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH&quot;: &quot;342&quot;,
     &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
     &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
     &quot;create.test.in.the.same.root&quot;: &quot;true&quot;,
@@ -116,7 +134,15 @@
       <option name="project" value="LOCAL" />
       <updated>1700162353476</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Fixed castle print">
+      <option name="closed" value="true" />
+      <created>1700606398938</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1700606398938</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -133,7 +159,8 @@
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="File Bomb" />
-    <option name="LAST_COMMIT_MESSAGE" value="File Bomb" />
+    <MESSAGE value="Fixed castle print" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed castle print" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -143,6 +170,9 @@
           <option name="timeStamp" value="1" />
         </breakpoint>
       </breakpoints>
+      <default-breakpoints>
+        <breakpoint enabled="true" type="java-exception" />
+      </default-breakpoints>
     </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">

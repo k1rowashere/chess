@@ -19,28 +19,22 @@ record CastleRights(boolean whiteKingside, boolean whiteQueenside,
 
     CastleRights disableKingside(Color color) {
         return switch (color) {
-            case White ->
-                    new CastleRights(false, this.whiteQueenside, this.blackKingside, this.blackQueenside);
-            case Black ->
-                    new CastleRights(this.whiteKingside, this.whiteQueenside, false, this.blackQueenside);
+            case White -> new CastleRights(false, this.whiteQueenside, this.blackKingside, this.blackQueenside);
+            case Black -> new CastleRights(this.whiteKingside, this.whiteQueenside, false, this.blackQueenside);
         };
     }
 
     CastleRights disableQueenside(Color color) {
         return switch (color) {
-            case White ->
-                    new CastleRights(this.whiteKingside, false, this.blackKingside, this.blackQueenside);
-            case Black ->
-                    new CastleRights(this.whiteKingside, this.whiteQueenside, this.blackKingside, false);
+            case White -> new CastleRights(this.whiteKingside, false, this.blackKingside, this.blackQueenside);
+            case Black -> new CastleRights(this.whiteKingside, this.whiteQueenside, this.blackKingside, false);
         };
     }
 
     CastleRights disableBoth(Color color) {
         return switch (color) {
-            case White ->
-                    new CastleRights(false, false, this.blackKingside, this.blackQueenside);
-            case Black ->
-                    new CastleRights(this.whiteKingside, this.whiteQueenside, false, false);
+            case White -> new CastleRights(false, false, this.blackKingside, this.blackQueenside);
+            case Black -> new CastleRights(this.whiteKingside, this.whiteQueenside, false, false);
         };
     }
 }
@@ -300,17 +294,18 @@ public class ChessGame {
             case White -> square.equals(new Square(File.E, Rank._1));
             case Black -> square.equals(new Square(File.E, Rank._8));
         } && !isInCheck();
+        if (!canCastle) return new CastleRights(false, false, false, false);
 
         var kingSideCheck = isInCheck(new Move(square, square.uncheckedAdd(1, 0)));
         var queenSideCheck = isInCheck(new Move(square, square.uncheckedAdd(-1, 0)))
                 || isInCheck(new Move(square, square.uncheckedAdd(-2, 0)));
 
-        return canCastle ? new CastleRights(
+        return new CastleRights(
                 !kingSideCheck && this.castleRights.whiteKingside(),
                 !queenSideCheck && this.castleRights.whiteQueenside(),
                 !kingSideCheck && this.castleRights.blackKingside(),
                 !queenSideCheck && this.castleRights.blackQueenside()
-        ) : new CastleRights(false, false, false, false);
+        );
     }
 
     /**
