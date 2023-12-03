@@ -1,0 +1,691 @@
+Index: src/Main.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import core.ChessGame;\nimport core.PieceType;\nimport core.move.CastleType;\nimport core.move.Move;\nimport core.move.QualifiedMove;\nimport core.square.Square;\nimport gui.Game;\n\nimport javax.swing.*;\n\nimport static core.square.File.*;\nimport static core.square.Rank.*;\n\npublic class Main {\n//    public static void main(String[] args) throws IOException {\n//        Scanner scanner = new Scanner(new java.io.File(\"ChessGame.txt\"));\n//        ChessGame game = new ChessGame();\n//\n//        boolean gameEnded = false;\n//        while (scanner.hasNextLine()) {\n//            String[] line = scanner.nextLine().split(\",\");\n//            if (gameEnded) {\n//                System.out.println(\"Game already ended\");\n//                continue;\n//            }\n//            gameEnded = gameLoop(line, game);\n//        }\n//    }\n\n    public static void main(String[] args) {\n        SwingUtilities.invokeLater(() -> new Game().setVisible(true));\n    }\n\n    private static boolean gameLoop(String[] line, ChessGame game) {\n        PieceType promotion = null;\n        if (line.length == 3) {\n            promotion = switch (line[2]) {\n                case \"Q\" -> PieceType.Queen;\n                case \"R\" -> PieceType.Rook;\n                case \"B\" -> PieceType.Bishop;\n                case \"K\" -> PieceType.Knight;\n                default -> null;\n            };\n        }\n\n        QualifiedMove move;\n        try {\n            move = game.move(\n                    new Move(parseSquare(line[0]),\n                            parseSquare(line[1]),\n                            promotion)\n            );\n        } catch (Exception e) {\n            System.out.println(\"Invalid Move\");\n            return false;\n        }\n\n        if (move.castle() != CastleType.None)\n            System.out.println(move.castle());\n\n        if (move.enPassant())\n            System.out.println(\"Enpassant\");\n\n        if (move.capture() != null)\n            System.out.println(\"Captured \" + move.capture());\n\n        switch (move.status()) {\n            case Check -> {\n                switch (move.piece().color()) {\n                    case White -> System.out.println(\"Black in check\");\n                    case Black -> System.out.println(\"White in check\");\n                }\n            }\n            case WhiteWins -> System.out.println(\"White Won\");\n            case BlackWins -> System.out.println(\"Black Won\");\n            case Stalemate -> System.out.println(\"Stalemate\");\n            case Draw -> System.out.println(\"Draw\");\n            case InsufficientMaterial ->\n                    System.out.println(\"Insufficient Material\");\n        }\n\n        return switch (move.status()) {\n            case WhiteWins, BlackWins, Stalemate,\n                    Draw, InsufficientMaterial -> true;\n            case Check, InProgress -> false;\n        };\n    }\n\n\n    private static Square parseSquare(String line) {\n        var file = switch (line.charAt(0)) {\n            case 'a' -> A;\n            case 'b' -> B;\n            case 'c' -> C;\n            case 'd' -> D;\n            case 'e' -> E;\n            case 'f' -> F;\n            case 'g' -> G;\n            case 'h' -> H;\n            default ->\n                    throw new IllegalStateException(\"Unexpected value: \" + line.charAt(0));\n        };\n        var Rank = switch (line.charAt(1)) {\n            case '1' -> _1;\n            case '2' -> _2;\n            case '3' -> _3;\n            case '4' -> _4;\n            case '5' -> _5;\n            case '6' -> _6;\n            case '7' -> _7;\n            case '8' -> _8;\n            default ->\n                    throw new IllegalStateException(\"Unexpected value: \" + line.charAt(1));\n        };\n        return new Square(file, Rank);\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/Main.java b/src/Main.java
+--- a/src/Main.java	
++++ b/src/Main.java	
+@@ -28,7 +28,9 @@
+ //    }
+ 
+     public static void main(String[] args) {
+-        SwingUtilities.invokeLater(() -> new Game().setVisible(true));
++        var game = new ChessGame();
++        var gui = new Game(game);
++        SwingUtilities.invokeLater(() -> gui.setVisible(true));
+     }
+ 
+     private static boolean gameLoop(String[] line, ChessGame game) {
+Index: src/core/Piece.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package core;\n\nimport core.square.File;\nimport core.square.Rank;\nimport core.square.Square;\nimport org.jetbrains.annotations.NotNull;\n\nimport java.util.ArrayList;\nimport java.util.Arrays;\nimport java.util.Optional;\nimport java.util.stream.Collectors;\nimport java.util.stream.IntStream;\nimport java.util.stream.Stream;\n\npublic record Piece(PieceType type, Color color) {\n    public int value() {\n        return switch (this.type) {\n            case Pawn -> 1;\n            case Knight, Bishop -> 3;\n            case Rook -> 5;\n            case Queen -> 7;\n            case King -> 200;\n        };\n    }\n\n    public char unicodeSym() {\n        switch (this.color) {\n            case White -> {\n                return switch (this.type) {\n                    case Pawn -> '♙';\n                    case Knight -> '♘';\n                    case Bishop -> '♗';\n                    case Rook -> '♖';\n                    case Queen -> '♕';\n                    case King -> '♔';\n                };\n            }\n            case Black -> {\n                return switch (this.type) {\n                    case Pawn -> '♟';\n                    case Knight -> '♞';\n                    case Bishop -> '♝';\n                    case Rook -> '♜';\n                    case Queen -> '♛';\n                    case King -> '♚';\n                };\n            }\n\n        }\n        return ' ';\n    }\n\n    /**\n     * @param square          The square the piece is on\n     * @param board           The board the piece is on\n     * @param enPassantTarget The file of the en passant target square, or null if there is none\n     * @param castleRights    The current castle rights\n     * @return A list of all possible moves for the piece (not taking into\n     * account check and pins/lines of sight).\n     */\n    ArrayList<Square> getMoves(Square square,\n                               @NotNull final Board board,\n                               File enPassantTarget,\n                               CastleRights castleRights\n    ) {\n        return switch (this.type) {\n            case Pawn -> Moves.pawn(square, this.color, enPassantTarget, board);\n            case Knight -> Moves.knight(square);\n            case Bishop -> Moves.bishop(square);\n            case Rook -> Moves.rook(square);\n            case Queen -> Stream.concat(\n                            Moves.bishop(square).stream(),\n                            Moves.rook(square).stream())\n                    .collect(Collectors.toCollection(ArrayList::new));\n            case King -> Moves.king(square, this.color, castleRights);\n        };\n    }\n\n    private static class Moves {\n        static ArrayList<Square> king(Square square,\n                                      Color color,\n                                      CastleRights castleRights\n        ) {\n            var pairs = new int[][]{{1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1},\n                    {-1, 1}, {-1, 0}, {-1, -1}};\n\n            var moves = movesFromPairs(square, pairs);\n\n            var canCastleKingside = switch (color) {\n                case White -> castleRights.whiteKingside();\n                case Black -> castleRights.blackKingside();\n            };\n            var canCastleQueenside = switch (color) {\n                case White -> castleRights.whiteQueenside();\n                case Black -> castleRights.blackQueenside();\n            };\n\n            // Castling\n            if (!square.equals(new Square(File.E, Rank._1))\n                    && !square.equals(new Square(File.E, Rank._8))) {\n                return moves;\n            }\n            switch (color) {\n                case White -> {\n                    if (canCastleKingside)\n                        moves.add(new Square(File.G, Rank._1));\n                    if (canCastleQueenside)\n                        moves.add(new Square(File.C, Rank._1));\n                }\n                case Black -> {\n                    if (canCastleKingside)\n                        moves.add(new Square(File.G, Rank._8));\n                    if (canCastleQueenside)\n                        moves.add(new Square(File.C, Rank._8));\n                }\n            }\n\n            return moves;\n        }\n\n        static ArrayList<Square> bishop(Square square) {\n            var moves = new ArrayList<Square>();\n\n            // Iterate over all possible directions (diagonals)\n            // diagonal\n            // anti-diagonal\n            IntStream.rangeClosed(-7, 7)\n                    .filter(i -> i != 0)\n                    .forEach(i -> {\n                        square.add(i, i).ifPresent(moves::add);\n                        square.add(i, -i).ifPresent(moves::add);\n                    });\n\n            return moves;\n        }\n\n        static ArrayList<Square> rook(Square square) {\n            var startRank = square.rank();\n            var startFile = square.file();\n            var moves = new ArrayList<Square>();\n\n            Arrays.stream(Rank.values())\n                    .map(r -> new Square(startFile, r))\n                    .filter(s -> !s.equals(square))\n                    .collect(Collectors.toCollection(() -> moves));\n\n            Arrays.stream(File.values())\n                    .map(f -> new Square(f, startRank))\n                    .filter(s -> !s.equals(square))\n                    .collect(Collectors.toCollection(() -> moves));\n\n            return moves;\n        }\n\n        static ArrayList<Square> knight(Square square) {\n            var pairs = new int[][]{{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2,\n                    -1}, {-2, 1}, {-1, 2}};\n\n            return movesFromPairs(square, pairs);\n        }\n\n        static ArrayList<Square> pawn(\n                Square square,\n                Color color,\n                File enPassantTarget,\n                Board board\n        ) {\n            var moves = new ArrayList<Square>();\n            var direction = color == Color.White ? 1 : -1;\n\n            // Single forward\n            var inFront = square.add(0, direction);\n\n            if (inFront.isEmpty()) return moves;\n\n            if (board.getPiece(inFront.get()).isEmpty()) {\n                inFront.ifPresent(moves::add);\n\n                // Double forward\n                boolean onStartRank = square.rank() == Rank._2 && color == Color.White\n                        || square.rank() == Rank._7 && color == Color.Black;\n\n                if (onStartRank)\n                    square.add(0, 2 * direction).ifPresent(moves::add);\n            }\n\n            var enPassantLeft = false;\n            var enPassantRight = false;\n\n            if (enPassantTarget != null\n                    && (square.rank() == Rank._5 && color == Color.White\n                    || square.rank() == Rank._4 && color == Color.Black)\n            ) {\n                enPassantLeft = enPassantTarget == square.file().add(-1).orElse(null);\n                enPassantRight = enPassantTarget == square.file().add(1).orElse(null);\n            }\n\n            // Left and right captures\n            Optional<Square> left = square.add(-1, direction);\n            Optional<Square> right = square.add(1, direction);\n\n            boolean canCaptureLeft = left\n                    .map(s -> board.getPiece(s).isPresent())\n                    .orElse(false);\n            boolean canCaptureRight = right\n                    .map(s -> board.getPiece(s).isPresent())\n                    .orElse(false);\n\n            if (canCaptureLeft || enPassantLeft) left.ifPresent(moves::add);\n            if (canCaptureRight || enPassantRight) right.ifPresent(moves::add);\n\n            return moves;\n        }\n\n        private static ArrayList<Square> movesFromPairs(Square start, int[][] pairs) {\n            return Arrays.stream(pairs)\n                    .map(pair -> start.add(pair[0], pair[1]))\n                    .flatMap(Optional::stream)\n                    .collect(Collectors.toCollection(ArrayList::new));\n        }\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/core/Piece.java b/src/core/Piece.java
+--- a/src/core/Piece.java	
++++ b/src/core/Piece.java	
+@@ -180,8 +180,13 @@
+                 boolean onStartRank = square.rank() == Rank._2 && color == Color.White
+                         || square.rank() == Rank._7 && color == Color.Black;
+ 
+-                if (onStartRank)
+-                    square.add(0, 2 * direction).ifPresent(moves::add);
++                if (onStartRank) {
++                    square.add(0, 2 * direction)
++                            .ifPresent(s -> {
++                                        if (board.getPiece(s).isEmpty()) moves.add(s);
++                                    }
++                            );
++                }
+             }
+ 
+             var enPassantLeft = false;
+Index: src/gui/Board.java
+===================================================================
+diff --git a/src/gui/Board.java b/src/gui/Board.java
+new file mode 100644
+--- /dev/null	
++++ b/src/gui/Board.java	
+@@ -0,0 +1,49 @@
++package gui;
++
++import core.square.Rank;
++import core.square.Square;
++
++import javax.swing.*;
++import java.awt.*;
++import java.util.function.BiConsumer;
++
++class Board {
++    private final Game.PieceLabel[][] board = new Game.PieceLabel[8][8];
++
++    Board(BiConsumer<Game.PieceLabel, Square> onSelect, JPanel panel) {
++        for (var rank : Rank.values()) {
++            for (var file : core.square.File.values()) {
++                var label = new Game.PieceLabel(
++                        null,
++                        new Square(file, rank),
++                        onSelect);
++
++                var i = rank.ordinal();
++                var j = file.ordinal();
++                label.setBackground(new Color((i + j) % 2 == 0 ? 0xb58863 :
++                        0xf0d9b5));
++
++                this.set(label, new Square(file, rank));
++                panel.add(label);
++            }
++        }
++    }
++
++    Game.PieceLabel get(Square square) {
++        return board[square.rank().ordinal()][square.file().ordinal()];
++    }
++
++    void forEach(BiConsumer<Game.PieceLabel, Square> consumer) {
++        for (var rank : Rank.values()) {
++            for (var file : core.square.File.values()) {
++                consumer.accept(get(new Square(file, rank)), new Square(file,
++                        rank));
++            }
++        }
++    }
++
++
++    public void set(Game.PieceLabel label, Square square) {
++        board[square.rank().ordinal()][square.file().ordinal()] = label;
++    }
++}
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"875336f8-04fe-4d99-a89c-e176f06a32ca\" name=\"Changes\" comment=\"fixed En passant edge case\">\n      <change afterPath=\"$PROJECT_DIR$/resources/skins/default/black/bishop.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/resources/skins/default/black/king.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/resources/skins/default/black/knight.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/resources/skins/default/black/pawn.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/resources/skins/default/black/queen.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/resources/skins/default/black/rook.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/resources/skins/default/white/bishop.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/resources/skins/default/white/king.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/resources/skins/default/white/knigh.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/resources/skins/default/white/pawn.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/resources/skins/default/white/queen.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/resources/skins/default/white/rook.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/src/gui/Game.form\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/src/gui/Game.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/Main.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/Main.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/core/ChessGame.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/core/ChessGame.java\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"JUnit5 Test Class\" />\n        <option value=\"Class\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"FormatOnSaveOptions\">\n    <option name=\"myRunOnSave\" value=\"true\" />\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitHubPullRequestSearchHistory\">{\n  &quot;lastFilter&quot;: {\n    &quot;state&quot;: &quot;OPEN&quot;,\n    &quot;assignee&quot;: &quot;k1rowashere&quot;\n  }\n}</component>\n  <component name=\"GithubPullRequestsUISettings\">\n    <option name=\"selectedUrlAndAccountId\">\n      <UrlAndAccount>\n        <option name=\"accountId\" value=\"c4bcaa5f-a098-4bfe-a08c-ff3c3b60da4b\" />\n        <option name=\"url\" value=\"https://github.com/k1rowashere/chess\" />\n      </UrlAndAccount>\n    </option>\n  </component>\n  <component name=\"OptimizeOnSaveOptions\">\n    <option name=\"myRunOnSave\" value=\"true\" />\n  </component>\n  <component name=\"ProblemsViewState\">\n    <option name=\"selectedTabId\" value=\"CurrentFile\" />\n  </component>\n  <component name=\"ProjectColorInfo\">{\n  &quot;associatedIndex&quot;: 0\n}</component>\n  <component name=\"ProjectId\" id=\"2YAxGBheI1oHLcLV7rnpRlAWYzW\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"autoscrollToSource\" value=\"true\" />\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\">{\n  &quot;keyToString&quot;: {\n    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,\n    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,\n    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,\n    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,\n    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,\n    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\n    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,\n    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,\n    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,\n    &quot;create.test.in.the.same.root&quot;: &quot;true&quot;,\n    &quot;git-widget-placeholder&quot;: &quot;master&quot;,\n    &quot;last_opened_file_path&quot;: &quot;/home/kiro/Projects/coleg/lab7/resources/skins/default/white&quot;,\n    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,\n    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,\n    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,\n    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,\n    &quot;settings.editor.selected.configurable&quot;: &quot;actions.on.save&quot;\n  }\n}</component>\n  <component name=\"RecentsManager\">\n    <key name=\"CreateClassDialog.RecentsKey\">\n      <recent name=\"core\" />\n    </key>\n    <key name=\"CopyFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/resources/skins/default/white\" />\n    </key>\n    <key name=\"CreateTestDialog.Recents.Supers\">\n      <recent name=\"\" />\n    </key>\n    <key name=\"MoveFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/resources/skins/default/black\" />\n    </key>\n    <key name=\"MoveClassesOrPackagesDialog.RECENTS_KEY\">\n      <recent name=\"core\" />\n      <recent name=\"core.piece\" />\n    </key>\n    <key name=\"CreateTestDialog.RecentsKey\">\n      <recent name=\"core\" />\n    </key>\n  </component>\n  <component name=\"RunManager\" selected=\"Application.Main\">\n    <configuration name=\"Main\" type=\"Application\" factoryName=\"Application\">\n      <option name=\"MAIN_CLASS_NAME\" value=\"Main\" />\n      <module name=\"lab7\" />\n      <method v=\"2\">\n        <option name=\"Make\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <configuration name=\"ChessGameTest.test\" type=\"JUnit\" factoryName=\"JUnit\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"lab7\" />\n      <extension name=\"coverage\">\n        <pattern>\n          <option name=\"PATTERN\" value=\"core.*\" />\n          <option name=\"ENABLED\" value=\"true\" />\n        </pattern>\n      </extension>\n      <option name=\"PACKAGE_NAME\" value=\"core\" />\n      <option name=\"MAIN_CLASS_NAME\" value=\"core.ChessGameTest\" />\n      <option name=\"METHOD_NAME\" value=\"test\" />\n      <option name=\"TEST_OBJECT\" value=\"method\" />\n      <method v=\"2\">\n        <option name=\"Make\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <configuration name=\"ChessGameTest.testEnPassant\" type=\"JUnit\" factoryName=\"JUnit\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"lab7\" />\n      <extension name=\"coverage\">\n        <pattern>\n          <option name=\"PATTERN\" value=\"core.*\" />\n          <option name=\"ENABLED\" value=\"true\" />\n        </pattern>\n      </extension>\n      <option name=\"PACKAGE_NAME\" value=\"core\" />\n      <option name=\"MAIN_CLASS_NAME\" value=\"core.ChessGameTest\" />\n      <option name=\"METHOD_NAME\" value=\"testEnPassant\" />\n      <option name=\"TEST_OBJECT\" value=\"method\" />\n      <method v=\"2\">\n        <option name=\"Make\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <configuration name=\"ChessGameTest.testPromotion\" type=\"JUnit\" factoryName=\"JUnit\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"lab7\" />\n      <extension name=\"coverage\">\n        <pattern>\n          <option name=\"PATTERN\" value=\"core.*\" />\n          <option name=\"ENABLED\" value=\"true\" />\n        </pattern>\n      </extension>\n      <option name=\"PACKAGE_NAME\" value=\"core\" />\n      <option name=\"MAIN_CLASS_NAME\" value=\"core.ChessGameTest\" />\n      <option name=\"METHOD_NAME\" value=\"testPromotion\" />\n      <option name=\"TEST_OBJECT\" value=\"method\" />\n      <method v=\"2\">\n        <option name=\"Make\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <list>\n      <item itemvalue=\"Application.Main\" />\n      <item itemvalue=\"JUnit.ChessGameTest.test\" />\n      <item itemvalue=\"JUnit.ChessGameTest.testEnPassant\" />\n      <item itemvalue=\"JUnit.ChessGameTest.testPromotion\" />\n    </list>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"JUnit.ChessGameTest.testPromotion\" />\n        <item itemvalue=\"JUnit.ChessGameTest.testEnPassant\" />\n        <item itemvalue=\"JUnit.ChessGameTest.test\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"875336f8-04fe-4d99-a89c-e176f06a32ca\" name=\"Changes\" comment=\"\" />\n      <created>1699982088435</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1699982088435</updated>\n    </task>\n    <task id=\"LOCAL-00001\" summary=\"Three fold repetition + refactoring\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1700164746179</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1700164746179</updated>\n    </task>\n    <task id=\"LOCAL-00002\" summary=\"small refactor\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1700164829917</created>\n      <option name=\"number\" value=\"00002\" />\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1700164829917</updated>\n    </task>\n    <task id=\"LOCAL-00003\" summary=\"refactor + testGame\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1700254840137</created>\n      <option name=\"number\" value=\"00003\" />\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1700254840138</updated>\n    </task>\n    <task id=\"LOCAL-00004\" summary=\"fixed blocking checks + more tests\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1700258291231</created>\n      <option name=\"number\" value=\"00004\" />\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1700258291231</updated>\n    </task>\n    <task id=\"LOCAL-00005\" summary=\"fixed En passant edge case\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1700412628429</created>\n      <option name=\"number\" value=\"00005\" />\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1700412628429</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"6\" />\n    <servers />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State />\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <option name=\"ADD_EXTERNAL_FILES_SILENTLY\" value=\"true\" />\n    <MESSAGE value=\"Three fold repetition + refactoring\" />\n    <MESSAGE value=\"small refactor\" />\n    <MESSAGE value=\"refactor + testGame\" />\n    <MESSAGE value=\"fixed blocking checks + more tests\" />\n    <MESSAGE value=\"fixed En passant edge case\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"fixed En passant edge case\" />\n  </component>\n  <component name=\"XDebuggerManager\">\n    <breakpoint-manager>\n      <breakpoints>\n        <line-breakpoint enabled=\"true\" type=\"java-line\">\n          <url>file://$PROJECT_DIR$/src/core/ChessGameTest.java</url>\n          <line>181</line>\n          <option name=\"timeStamp\" value=\"4\" />\n        </line-breakpoint>\n        <line-breakpoint enabled=\"true\" type=\"java-line\">\n          <url>file://$PROJECT_DIR$/src/core/ChessGame.java</url>\n          <line>280</line>\n          <option name=\"timeStamp\" value=\"5\" />\n        </line-breakpoint>\n        <line-breakpoint enabled=\"true\" type=\"java-line\">\n          <url>file://$PROJECT_DIR$/src/core/Piece.java</url>\n          <line>26</line>\n          <option name=\"timeStamp\" value=\"7\" />\n        </line-breakpoint>\n      </breakpoints>\n    </breakpoint-manager>\n  </component>\n  <component name=\"XSLT-Support.FileAssociations.UIState\">\n    <expand />\n    <select />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	
++++ b/.idea/workspace.xml	
+@@ -4,24 +4,13 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="fixed En passant edge case">
+-      <change afterPath="$PROJECT_DIR$/resources/skins/default/black/bishop.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/resources/skins/default/black/king.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/resources/skins/default/black/knight.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/resources/skins/default/black/pawn.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/resources/skins/default/black/queen.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/resources/skins/default/black/rook.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/resources/skins/default/white/bishop.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/resources/skins/default/white/king.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/resources/skins/default/white/knigh.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/resources/skins/default/white/pawn.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/resources/skins/default/white/queen.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/resources/skins/default/white/rook.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/gui/Game.form" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/gui/Game.java" afterDir="false" />
++    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="gui started + drag and drop">
++      <change afterPath="$PROJECT_DIR$/src/gui/Board.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/resources/skins/default/white/knigh.png" beforeDir="false" afterPath="$PROJECT_DIR$/resources/skins/default/white/knight.png" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/core/ChessGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGame.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/core/Piece.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/Piece.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/gui/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/Game.java" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -40,6 +29,11 @@
+     <option name="myRunOnSave" value="true" />
+   </component>
+   <component name="Git.Settings">
++    <option name="RECENT_BRANCH_BY_REPOSITORY">
++      <map>
++        <entry key="$PROJECT_DIR$" value="master" />
++      </map>
++    </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+   </component>
+   <component name="GitHubPullRequestSearchHistory">{
+@@ -74,28 +68,28 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent">{
+-  &quot;keyToString&quot;: {
+-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+-    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,
+-    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
+-    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
+-    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
+-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
+-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
+-    &quot;create.test.in.the.same.root&quot;: &quot;true&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+-    &quot;last_opened_file_path&quot;: &quot;/home/kiro/Projects/coleg/lab7/resources/skins/default/white&quot;,
+-    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+-    &quot;settings.editor.selected.configurable&quot;: &quot;actions.on.save&quot;
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "ASKED_ADD_EXTERNAL_FILES": "true",
++    "Downloaded.Files.Path.Enabled": "false",
++    "Repository.Attach.Annotations": "false",
++    "Repository.Attach.JavaDocs": "false",
++    "Repository.Attach.Sources": "false",
++    "RunOnceActivity.OpenProjectViewOnStart": "true",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
++    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
++    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
++    "create.test.in.the.same.root": "true",
++    "git-widget-placeholder": "gui__kiro",
++    "last_opened_file_path": "/home/kiro/Projects/coleg/lab7/resources/skins/default/white",
++    "project.structure.last.edited": "Libraries",
++    "project.structure.proportion": "0.15",
++    "project.structure.side.proportion": "0.2",
++    "run.code.analysis.last.selected.profile": "pProject Default",
++    "settings.editor.selected.configurable": "actions.on.save"
+   }
+-}</component>
++}]]></component>
+   <component name="RecentsManager">
+     <key name="CreateClassDialog.RecentsKey">
+       <recent name="core" />
+@@ -236,7 +230,15 @@
+       <option name="project" value="LOCAL" />
+       <updated>1700412628429</updated>
+     </task>
+-    <option name="localTasksCounter" value="6" />
++    <task id="LOCAL-00006" summary="gui started + drag and drop">
++      <option name="closed" value="true" />
++      <created>1701551752676</created>
++      <option name="number" value="00006" />
++      <option name="presentableId" value="LOCAL-00006" />
++      <option name="project" value="LOCAL" />
++      <updated>1701551752676</updated>
++    </task>
++    <option name="localTasksCounter" value="7" />
+     <servers />
+   </component>
+   <component name="Vcs.Log.Tabs.Properties">
+@@ -244,7 +246,19 @@
+       <map>
+         <entry key="MAIN">
+           <value>
+-            <State />
++            <State>
++              <option name="FILTERS">
++                <map>
++                  <entry key="branch">
++                    <value>
++                      <list>
++                        <option value="gui_kiro" />
++                      </list>
++                    </value>
++                  </entry>
++                </map>
++              </option>
++            </State>
+           </value>
+         </entry>
+       </map>
+@@ -257,7 +271,8 @@
+     <MESSAGE value="refactor + testGame" />
+     <MESSAGE value="fixed blocking checks + more tests" />
+     <MESSAGE value="fixed En passant edge case" />
+-    <option name="LAST_COMMIT_MESSAGE" value="fixed En passant edge case" />
++    <MESSAGE value="gui started + drag and drop" />
++    <option name="LAST_COMMIT_MESSAGE" value="gui started + drag and drop" />
+   </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+@@ -268,14 +283,14 @@
+           <option name="timeStamp" value="4" />
+         </line-breakpoint>
+         <line-breakpoint enabled="true" type="java-line">
+-          <url>file://$PROJECT_DIR$/src/core/ChessGame.java</url>
+-          <line>280</line>
+-          <option name="timeStamp" value="5" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" type="java-line">
+           <url>file://$PROJECT_DIR$/src/core/Piece.java</url>
+           <line>26</line>
+           <option name="timeStamp" value="7" />
++        </line-breakpoint>
++        <line-breakpoint enabled="true" type="java-line">
++          <url>file://$PROJECT_DIR$/src/gui/Game.java</url>
++          <line>76</line>
++          <option name="timeStamp" value="14" />
+         </line-breakpoint>
+       </breakpoints>
+     </breakpoint-manager>
+Index: src/gui/Game.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package gui;\n\nimport core.Piece;\nimport org.jetbrains.annotations.Contract;\nimport org.jetbrains.annotations.NotNull;\nimport org.jetbrains.annotations.Nullable;\n\nimport javax.swing.*;\nimport java.awt.*;\nimport java.awt.datatransfer.DataFlavor;\nimport java.awt.datatransfer.Transferable;\nimport java.awt.datatransfer.UnsupportedFlavorException;\nimport java.awt.dnd.DnDConstants;\nimport java.awt.dnd.DragSource;\nimport java.awt.event.InputEvent;\nimport java.io.IOException;\nimport java.util.Optional;\n\nimport static core.Color.White;\nimport static core.PieceType.Pawn;\n\npublic class Game extends JFrame {\n\n    private static final int GRID_SIZE = 8;\n    private final PieceLabel[][] grid;\n\n    public Game() {\n        setTitle(\"Image Grid\");\n        setSize(720, 720);\n        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);\n\n        GridLayout gridLayout = new GridLayout(GRID_SIZE, GRID_SIZE);\n        JPanel panel = new JPanel(gridLayout);\n        grid = new PieceLabel[GRID_SIZE][GRID_SIZE];\n\n        for (int i = 0; i < GRID_SIZE; i++) {\n            for (int j = 0; j < GRID_SIZE; j++) {\n                var label = new PieceLabel(null);\n\n                label.setBackground(new Color((i + j) % 2 == 0 ? 0xb58863 : 0xf0d9b5));\n\n                grid[i][j] = label;\n                panel.add(label);\n            }\n        }\n\n\n        grid[0][0].setPiece(new Piece(Pawn, White));\n\n        setContentPane(panel);\n    }\n\n    private static class PieceLabel extends JLabel {\n        private Piece piece;\n        private static Image[][] pieceImages;\n\n        public PieceLabel(Piece piece) {\n            setPiece(piece);\n            setHorizontalAlignment(SwingConstants.CENTER);\n            setVerticalAlignment(SwingConstants.CENTER);\n            setTransferHandler(new PieceTransferHandler());\n            setOpaque(true);\n\n            if (pieceImages == null) {\n                pieceImages = new Image[2][6];\n                for (var c : core.Color.values()) {\n                    for (var t : core.PieceType.values()) {\n                        var path = String.format(\n                                \"resources/skins/default/%s/%s.png\",\n                                c.toString().toLowerCase(),\n                                t.toString().toLowerCase()\n                        );\n                        pieceImages[c.ordinal()][t.ordinal()] = new ImageIcon(path).getImage();\n                    }\n                }\n            }\n\n\n            //Create a DragSource and associate it with the component\n            DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(\n                    this,\n                    DnDConstants.ACTION_MOVE,\n                    dge -> {\n                        if (getPiece().isEmpty()) {\n                            return;\n                        }\n                        Cursor cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);\n                        Image image = getPieceIcon()\n                                .getImage()\n                                .getScaledInstance(50, 50, Image.SCALE_SMOOTH);\n\n                        dge.startDrag(\n                                cursor,\n                                image,\n                                new Point(10, 10),\n                                new PieceTransferable(getPiece().get()),\n                                null);\n                        this.getTransferHandler().exportAsDrag(\n                                this,\n                                dge.getTriggerEvent(),\n                                TransferHandler.MOVE);\n                    });\n        }\n\n\n        @Contract(\"_ -> new\")\n        private static @NotNull ImageIcon getPieceIcon(@NotNull Piece piece) {\n            return new ImageIcon(pieceImages[piece.color().ordinal()][piece.type().ordinal()]);\n        }\n\n        public @Nullable ImageIcon getPieceIcon() {\n            return piece == null ? null : getPieceIcon(piece);\n        }\n\n        public void setPiece(Piece piece) {\n            this.piece = piece;\n            setIcon(piece == null ? null : getPieceIcon(piece));\n        }\n\n        public Optional<Piece> getPiece() {\n            return Optional.ofNullable(piece);\n        }\n\n    }\n\n    private record PieceTransferable(Piece piece) implements Transferable {\n        static final DataFlavor PIECE_FLAVOR = new DataFlavor(Piece.class, \"Piece\");\n\n        @Override\n        public DataFlavor[] getTransferDataFlavors() {\n            return new DataFlavor[]{PIECE_FLAVOR};\n        }\n\n        @Override\n        public boolean isDataFlavorSupported(DataFlavor flavor) {\n            return flavor.equals(PIECE_FLAVOR);\n        }\n\n        @Override\n        public @NotNull Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {\n            if (flavor.equals(PIECE_FLAVOR)) {\n                return piece;\n            } else {\n                throw new UnsupportedFlavorException(flavor);\n            }\n        }\n    }\n\n    private static class PieceTransferHandler extends TransferHandler {\n        @Override\n        public int getSourceActions(JComponent c) {\n            return TransferHandler.MOVE;\n        }\n\n        public boolean canImport(TransferHandler.TransferSupport support) {\n            return support.isDataFlavorSupported(PieceTransferable.PIECE_FLAVOR);\n        }\n\n        @Override\n        protected Transferable createTransferable(JComponent c) {\n            return ((PieceLabel) c).getPiece()\n                    .map(PieceTransferable::new)\n                    .orElse(null);\n        }\n\n        @Override\n        public boolean importData(TransferSupport support) {\n            try {\n                var transferable = support.getTransferable();\n                Piece droppedPiece = (Piece) transferable.getTransferData(PieceTransferable.PIECE_FLAVOR);\n\n                if (support.getComponent() instanceof PieceLabel targetLabel) {\n                    targetLabel.setPiece(droppedPiece);\n                }\n\n                return true;\n            } catch (UnsupportedFlavorException | IOException e) {\n                System.out.println(\"Error importing data\");\n                return false;\n            }\n        }\n\n        @Override\n        protected void exportDone(JComponent source, Transferable data, int action) {\n            if (action != TransferHandler.MOVE) {\n                try {\n                    ((PieceLabel) source)\n                            .setPiece((Piece) data.getTransferData(PieceTransferable.PIECE_FLAVOR));\n                } catch (UnsupportedFlavorException | IOException ignored) {\n                }\n            }\n\n        }\n\n        @Override\n        public void exportAsDrag(JComponent comp, InputEvent e, int action) {\n            super.exportAsDrag(comp, e, action);\n            ((PieceLabel) comp).setPiece(null);\n        }\n    }\n\n}\n
+===================================================================
+diff --git a/src/gui/Game.java b/src/gui/Game.java
+--- a/src/gui/Game.java	
++++ b/src/gui/Game.java	
+@@ -1,126 +1,292 @@
+ package gui;
+ 
++import core.ChessGame;
+ import core.Piece;
++import core.PieceType;
++import core.move.CastleType;
++import core.move.Move;
++import core.move.QualifiedMove;
++import core.square.File;
++import core.square.Rank;
++import core.square.Square;
+ import org.jetbrains.annotations.Contract;
+ import org.jetbrains.annotations.NotNull;
+-import org.jetbrains.annotations.Nullable;
+ 
+ import javax.swing.*;
+ import java.awt.*;
+ import java.awt.datatransfer.DataFlavor;
+ import java.awt.datatransfer.Transferable;
+ import java.awt.datatransfer.UnsupportedFlavorException;
+-import java.awt.dnd.DnDConstants;
+-import java.awt.dnd.DragSource;
+ import java.awt.event.InputEvent;
++import java.awt.event.MouseAdapter;
++import java.awt.event.MouseEvent;
++import java.awt.image.BufferedImage;
+ import java.io.IOException;
++import java.util.Objects;
+ import java.util.Optional;
+-
+-import static core.Color.White;
+-import static core.PieceType.Pawn;
++import java.util.function.BiConsumer;
+ 
+ public class Game extends JFrame {
+-
+     private static final int GRID_SIZE = 8;
+-    private final PieceLabel[][] grid;
+-
+-    public Game() {
+-        setTitle("Image Grid");
+-        setSize(720, 720);
+-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
++    private static final int CELL_SIZE = 90;
++    private static final int TOTAL_SIZE = GRID_SIZE * CELL_SIZE;
++    private final Board board;
++    private Square selectedSquare = null;
+ 
+-        GridLayout gridLayout = new GridLayout(GRID_SIZE, GRID_SIZE);
+-        JPanel panel = new JPanel(gridLayout);
+-        grid = new PieceLabel[GRID_SIZE][GRID_SIZE];
++    public Game(ChessGame game) {
++        this.setTitle("Image Grid");
++        this.setSize(TOTAL_SIZE, TOTAL_SIZE);
++        this.setResizable(false);
++        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+ 
+-        for (int i = 0; i < GRID_SIZE; i++) {
+-            for (int j = 0; j < GRID_SIZE; j++) {
+-                var label = new PieceLabel(null);
++        var gridLayout = new GridLayout(GRID_SIZE, GRID_SIZE);
++        gridLayout.preferredLayoutSize(this);
+ 
+-                label.setBackground(new Color((i + j) % 2 == 0 ? 0xb58863 : 0xf0d9b5));
++        var panel = new JPanel(gridLayout);
+ 
+-                grid[i][j] = label;
+-                panel.add(label);
+-            }
+-        }
++        BiConsumer<PieceLabel, Square> onSelect = (label, square) -> move(game, label, square);
++        this.board = new Board(onSelect, panel);
+ 
+-
+-        grid[0][0].setPiece(new Piece(Pawn, White));
++        // init board
++        game.board().getPieces().forEach((boardPiece) -> {
++            var label = board.get(boardPiece.square());
++            label.setPiece(boardPiece.piece());
++        });
+ 
+         setContentPane(panel);
++        flip();
+     }
+ 
+-    private static class PieceLabel extends JLabel {
+-        private Piece piece;
++    private void move(ChessGame game, PieceLabel label, Square square) {
++        // reset
++        board.forEach((l, s) -> l.setBorder(null));
++
++
++        if (Objects.equals(this.selectedSquare, square)) {
++            this.selectedSquare = null;
++            return;
++        }
++
++        if (this.selectedSquare != null) {
++            try {
++                var move = game.move(new Move(this.selectedSquare, square));
++                System.out.println(move);
++                updateUi(move);
++                return;
++            } catch (IllegalArgumentException ignored) {
++                System.out.println("Invalid move");
++            }
++        }
++
++        this.selectedSquare = square;
++        label.setBorder(BorderFactory.createLineBorder(Color.RED, 3));
++
++        var moves = game.getLegalMoves(square);
++        moves.forEach(System.out::println);
++        moves.forEach(move ->
++                board.get(move).setBorder(BorderFactory.createLineBorder(Color.GREEN, 3))
++        );
++    }
++
++    private void animateMove(QualifiedMove move) {
++        var from = board.get(move.from());
++        var to = board.get(move.to());
++
++        JPanel contentPane = (JPanel) getContentPane();
++        var glassPane = (JPanel) contentPane.getRootPane().getGlassPane();
++        var tempLabel = new JLabel(from.getIcon());
++        tempLabel.setSize(from.getSize());
++        tempLabel.setLocation(from.getX(), from.getY());
++        glassPane.setBounds(0, 0, TOTAL_SIZE, TOTAL_SIZE);
++        glassPane.setLayout(null);
++        var comp = glassPane.add(tempLabel);
++        glassPane.setVisible(true);
++        glassPane.setOpaque(false);
++        glassPane.repaint();
++
++        var dy = (to.getY() - from.getY()) / 10.0;
++        var dx = (to.getX() - from.getX()) / 10.0;
++
++        from.setPiece(null);
++
++        // ease in ease out
++        var timer = new Timer(10, e -> {
++            var x = (int) (tempLabel.getX() + dx);
++            var y = (int) (tempLabel.getY() + dy);
++            comp.setLocation(x, y);
++            comp.repaint();
++            comp.revalidate();
++            if (x == to.getX() && y == to.getY()) {
++                ((Timer) e.getSource()).stop();
++                glassPane.remove(comp);
++                glassPane.setVisible(false);
++                to.setPiece(move.piece());
++//                flip();
++            }
++        });
++        timer.start();
++    }
++
++    private void updateUi(QualifiedMove move) {
++        // en passant
++        if (move.enPassant()) {
++            var enPassantSquare = new Square(move.to().file(),
++                    move.from().rank());
++            board.get(enPassantSquare).setPiece(null);
++        }
++
++        // promotion
++        if (move.promotion() != null) {
++            var promPiece = new Piece(
++                    move.promotion(),
++                    move.piece().color());
++            board.get(move.to()).setPiece(promPiece);
++        }
++
++        // castle
++        if (move.castle() != CastleType.None) {
++            var rookFile =
++                    move.castle() == CastleType.Short ?
++                            File.H : File.A;
++            var rookRank = move.piece().color() == core.Color.White ?
++                    Rank._1 : Rank._8;
++            var rookSquare = new Square(rookFile, rookRank);
++            var newRookFile =
++                    move.castle() == CastleType.Short ?
++                            File.F : File.D;
++            var newRookSquare = new Square(newRookFile, rookRank);
++            Piece rook = new Piece(
++                    PieceType.Rook,
++                    move.piece().color());
++            // TODO: animate rook
++            board.get(newRookSquare).setPiece(rook);
++            board.get(rookSquare).setPiece(null);
++        }
++
++        animateMove(move);
++    }
++
++
++    private void flip() {
++        var panel = this.getContentPane();
++        var components = panel.getComponents();
++        panel.removeAll();
++
++        for (int i = GRID_SIZE - 1; i >= 0; i--) {
++            for (int j = 0; j < GRID_SIZE; j++) {
++                panel.add(components[i * GRID_SIZE + j]);
++            }
++        }
++
++        panel.revalidate();
++        panel.repaint();
++    }
++
++
++    static class PieceLabel extends JLabel {
+         private static Image[][] pieceImages;
++        private Piece piece;
++
++        public PieceLabel(PieceLabel label) {
++            this.setPreferredSize(new Dimension(CELL_SIZE, CELL_SIZE));
++            this.setHorizontalAlignment(SwingConstants.CENTER);
++            this.setVerticalAlignment(SwingConstants.CENTER);
++            this.setVisible(true);
++
++            this.setPiece(label.getPiece().orElse(null));
++        }
++
++        public PieceLabel(Piece piece, Square square, BiConsumer<PieceLabel, Square> onSelect) {
++            this.setPiece(piece);
++            this.setPreferredSize(new Dimension(CELL_SIZE, CELL_SIZE));
++            this.setHorizontalAlignment(SwingConstants.CENTER);
++            this.setVerticalAlignment(SwingConstants.CENTER);
++            this.setTransferHandler(new PieceTransferHandler());
++            this.setOpaque(true);
++
++            initImages();
+ 
+-        public PieceLabel(Piece piece) {
+-            setPiece(piece);
+-            setHorizontalAlignment(SwingConstants.CENTER);
+-            setVerticalAlignment(SwingConstants.CENTER);
+-            setTransferHandler(new PieceTransferHandler());
+-            setOpaque(true);
++            //Create a DragSource and associate it with the component
++//            DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(
++//                    this,
++//                    DnDConstants.ACTION_MOVE,
++//                    dge -> {
++//                        if (getPiece().isEmpty()) {
++//                            return;
++//                        }
++//                        Cursor cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
++//                        //noinspection OptionalGetWithoutIsPresent
++//                        Image image = getPieceIcon().get().getImage();
++//
++//                        dge.startDrag(
++//                                cursor,
++//                                image,
++//                                new Point(10, 10),
++//                                new PieceTransferable(getPiece().get()),
++//                                null);
++////                        this.getTransferHandler().exportAsDrag(
++////                                this,
++////                                dge.getTriggerEvent(),
++////                                TransferHandler.MOVE);
++//                    });
+ 
+-            if (pieceImages == null) {
+-                pieceImages = new Image[2][6];
+-                for (var c : core.Color.values()) {
+-                    for (var t : core.PieceType.values()) {
+-                        var path = String.format(
+-                                "resources/skins/default/%s/%s.png",
+-                                c.toString().toLowerCase(),
+-                                t.toString().toLowerCase()
+-                        );
+-                        pieceImages[c.ordinal()][t.ordinal()] = new ImageIcon(path).getImage();
+-                    }
+-                }
+-            }
++            this.addMouseListener(new MouseAdapter() {
++                @Override
++                public void mousePressed(MouseEvent e) {
++                    super.mousePressed(e);
++                    onSelect.accept(PieceLabel.this, square);
++                }
++            });
++        }
++
++        private static void initImages() {
++            if (pieceImages != null) {
++                return;
++            }
++
++            pieceImages = new Image[2][6];
++            for (var c : core.Color.values()) {
++                for (var t : core.PieceType.values()) {
++                    var path = String.format(
++                            "resources/skins/default/%s/%s.png",
++                            c.toString().toLowerCase(),
++                            t.toString().toLowerCase()
++                    );
++                    pieceImages[c.ordinal()][t.ordinal()] = new ImageIcon(path).getImage();
++                }
++            }
++        }
+ 
+ 
+-            //Create a DragSource and associate it with the component
+-            DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(
+-                    this,
+-                    DnDConstants.ACTION_MOVE,
+-                    dge -> {
+-                        if (getPiece().isEmpty()) {
+-                            return;
+-                        }
+-                        Cursor cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+-                        Image image = getPieceIcon()
+-                                .getImage()
+-                                .getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+-
+-                        dge.startDrag(
+-                                cursor,
+-                                image,
+-                                new Point(10, 10),
+-                                new PieceTransferable(getPiece().get()),
+-                                null);
+-                        this.getTransferHandler().exportAsDrag(
+-                                this,
+-                                dge.getTriggerEvent(),
+-                                TransferHandler.MOVE);
+-                    });
+-        }
+-
+-
+         @Contract("_ -> new")
+         private static @NotNull ImageIcon getPieceIcon(@NotNull Piece piece) {
+             return new ImageIcon(pieceImages[piece.color().ordinal()][piece.type().ordinal()]);
+         }
+ 
+-        public @Nullable ImageIcon getPieceIcon() {
+-            return piece == null ? null : getPieceIcon(piece);
++        public Optional<ImageIcon> getPieceIcon() {
++            return getPiece().map(PieceLabel::getPieceIcon);
+         }
+ 
+         public void setPiece(Piece piece) {
+             this.piece = piece;
+-            setIcon(piece == null ? null : getPieceIcon(piece));
++
++            if (piece == null) {
++                this.setIcon(null);
++                return;
++            }
++
++            var icon = getPieceIcon(piece)
++                    .getImage()
++                    .getScaledInstance(
++                            this.getPreferredSize().width,
++                            this.getPreferredSize().height,
++                            Image.SCALE_SMOOTH);
++            this.setIcon(new ImageIcon(icon));
+         }
+ 
+         public Optional<Piece> getPiece() {
+             return Optional.ofNullable(piece);
+         }
+-
+     }
+ 
+     private record PieceTransferable(Piece piece) implements Transferable {
+@@ -182,20 +348,30 @@
+ 
+         @Override
+         protected void exportDone(JComponent source, Transferable data, int action) {
+-            if (action != TransferHandler.MOVE) {
+-                try {
+-                    ((PieceLabel) source)
+-                            .setPiece((Piece) data.getTransferData(PieceTransferable.PIECE_FLAVOR));
+-                } catch (UnsupportedFlavorException | IOException ignored) {
+-                }
++            System.out.println(action);
++            if (action == TransferHandler.MOVE) {
++                var sourceLabel = (PieceLabel) source;
++                sourceLabel.setPiece(null);
++//                sourceLabel.setGhost(true);
+             }
+-
+         }
+ 
+         @Override
+         public void exportAsDrag(JComponent comp, InputEvent e, int action) {
+             super.exportAsDrag(comp, e, action);
+-            ((PieceLabel) comp).setPiece(null);
++
++            var label = ((PieceLabel) comp);
++            var icon = (ImageIcon) label.getIcon();
++            BufferedImage image = new BufferedImage(
++                    icon.getIconWidth(),
++                    icon.getIconHeight(),
++                    BufferedImage.TYPE_INT_ARGB);
++            Graphics2D g = image.createGraphics();
++            // lower opacity
++            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f));
++            g.drawImage(icon.getImage(), 0, 0, null);
++            g.dispose();
++            label.setIcon(new ImageIcon(image));
+         }
+     }
+ 

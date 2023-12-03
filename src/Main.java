@@ -28,7 +28,9 @@ public class Main {
 //    }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Game().setVisible(true));
+        var game = new ChessGame();
+        var gui = new Game(game);
+        SwingUtilities.invokeLater(() -> gui.setVisible(true));
     }
 
     private static boolean gameLoop(String[] line, ChessGame game) {
