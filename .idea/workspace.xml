@@ -36,14 +36,14 @@
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
     &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;k1rowashere&quot;
+    &quot;assignee&quot;: &quot;Noureldeen73&quot;
   }
 }</component>
   <component name="GithubPullRequestsUISettings">
     <option name="selectedUrlAndAccountId">
       <UrlAndAccount>
-        <option name="accountId" value="c4bcaa5f-a098-4bfe-a08c-ff3c3b60da4b" />
-        <option name="url" value="https://github.com/k1rowashere/chess" />
+        <option name="accountId" value="2c82502a-3c22-4b42-ab4d-232cc49c0ef7" />
+        <option name="url" value="https://github.com/k1rowashere/chess.git" />
       </UrlAndAccount>
     </option>
   </component>
@@ -75,6 +75,8 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;UI_DESIGNER_EDITOR_MODE.PaletteManager.WIDTH&quot;: &quot;131&quot;,
+    &quot;UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH&quot;: &quot;342&quot;,
     &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
     &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
     &quot;create.test.in.the.same.root&quot;: &quot;true&quot;,
@@ -191,37 +193,21 @@
       <option name="presentableId" value="Default" />
       <updated>1699982088435</updated>
     </task>
-    <task id="LOCAL-00001" summary="Three fold repetition + refactoring">
+    <task id="LOCAL-00001" summary="File Bomb">
       <option name="closed" value="true" />
-      <created>1700164746179</created>
+      <created>1700162353476</created>
       <option name="number" value="00001" />
       <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1700164746179</updated>
+      <updated>1700162353476</updated>
     </task>
-    <task id="LOCAL-00002" summary="small refactor">
+    <task id="LOCAL-00002" summary="Fixed castle print">
       <option name="closed" value="true" />
-      <created>1700164829917</created>
+      <created>1700606398938</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1700164829917</updated>
-    </task>
-    <task id="LOCAL-00003" summary="refactor + testGame">
-      <option name="closed" value="true" />
-      <created>1700254840137</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1700254840138</updated>
-    </task>
-    <task id="LOCAL-00004" summary="fixed blocking checks + more tests">
-      <option name="closed" value="true" />
-      <created>1700258291231</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1700258291231</updated>
+      <updated>1700606398938</updated>
     </task>
     <task id="LOCAL-00005" summary="fixed En passant edge case">
       <option name="closed" value="true" />
@@ -317,6 +303,9 @@
           <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
+      <default-breakpoints>
+        <breakpoint enabled="true" type="java-exception" />
+      </default-breakpoints>
     </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">

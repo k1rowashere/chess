@@ -1,3 +1,4 @@
+import core.ChessBoard;
 import core.ChessGame;
 import gui.Game;
 
