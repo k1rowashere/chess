@@ -63,6 +63,17 @@ public class ChessGame {
         return this.board.copy();
     }
 
+    public boolean isPromotionMove(Move move) {
+        if (!isLegalMove(move))
+            return false;
+
+        Square source = move.from();
+        Square target = move.to();
+        var piece = this.board.getPiece(source).orElseThrow();
+
+        return piece.type() == PieceType.Pawn && (target.rank() == Rank._8 || target.rank() == Rank._1);
+    }
+
     /**
      * @param move the move to make
      * @return the move that was made, with additional information (promotion,
@@ -294,6 +305,8 @@ public class ChessGame {
             case White -> square.equals(new Square(File.E, Rank._1));
             case Black -> square.equals(new Square(File.E, Rank._8));
         } && !isInCheck();
+        if (!canCastle) return new CastleRights(false, false, false, false);
+
         if (!canCastle) return new CastleRights(false, false, false, false);
 
         var kingSideCheck = isInCheck(new Move(square, square.uncheckedAdd(1, 0)));

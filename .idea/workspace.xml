@@ -4,28 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="Fixed castle print">
-      <change afterPath="$PROJECT_DIR$/BlackBishop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BlackKing.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BlackKnight.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BlackPawn.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BlackQueen.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BlackRook.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ChessGame.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WhiteBishop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WhiteKing.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WhiteKnight.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WhitePawn.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WhiteQueen.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WhiteRook.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/ChessBoard.form" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/ChessBoard.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="SOUNDS! + Refactoring">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/ChessGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/ChessGameTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGameTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/Game.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,6 +26,11 @@
     <option name="myRunOnSave" value="true" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -93,11 +80,11 @@
     &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
     &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
     &quot;create.test.in.the.same.root&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Global Libraries&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;gui__kiro&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/kiro/Projects/coleg/lab7/resources/skins/default/sounds&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;rearrange.code.on.save&quot;: &quot;true&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;actions.on.save&quot;
   }
@@ -106,16 +93,96 @@
     <key name="CreateClassDialog.RecentsKey">
       <recent name="core" />
     </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/resources/skins/default/sounds" />
+      <recent name="$PROJECT_DIR$/resources/skins/default/white" />
+    </key>
     <key name="CreateTestDialog.Recents.Supers">
       <recent name="" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/resources/skins/default/black" />
     </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="core" />
       <recent name="core.piece" />
     </key>
+    <key name="MoveInnerDialog.RECENTS_KEY">
+      <recent name="gui" />
+    </key>
     <key name="CreateTestDialog.RecentsKey">
       <recent name="core" />
     </key>
+  </component>
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="Main" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Main" />
+      <module name="lab7" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ChessGameTest.test" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="lab7" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="core.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="core" />
+      <option name="MAIN_CLASS_NAME" value="core.ChessGameTest" />
+      <option name="METHOD_NAME" value="test" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ChessGameTest.testEnPassant" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="lab7" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="core.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="core" />
+      <option name="MAIN_CLASS_NAME" value="core.ChessGameTest" />
+      <option name="METHOD_NAME" value="testEnPassant" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ChessGameTest.testPromotion" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="lab7" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="core.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="core" />
+      <option name="MAIN_CLASS_NAME" value="core.ChessGameTest" />
+      <option name="METHOD_NAME" value="testPromotion" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Main" />
+      <item itemvalue="JUnit.ChessGameTest.test" />
+      <item itemvalue="JUnit.ChessGameTest.testEnPassant" />
+      <item itemvalue="JUnit.ChessGameTest.testPromotion" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.ChessGameTest.test" />
+        <item itemvalue="JUnit.ChessGameTest.testPromotion" />
+        <item itemvalue="JUnit.ChessGameTest.testEnPassant" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -142,7 +209,47 @@
       <option name="project" value="LOCAL" />
       <updated>1700606398938</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00005" summary="fixed En passant edge case">
+      <option name="closed" value="true" />
+      <created>1700412628429</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1700412628429</updated>
+    </task>
+    <task id="LOCAL-00006" summary="gui started + drag and drop">
+      <option name="closed" value="true" />
+      <created>1701551752676</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1701551752676</updated>
+    </task>
+    <task id="LOCAL-00007" summary="animation + move">
+      <option name="closed" value="true" />
+      <created>1701621301041</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1701621301041</updated>
+    </task>
+    <task id="LOCAL-00008" summary="fixed backend double pawn move">
+      <option name="closed" value="true" />
+      <created>1701621324563</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1701621324563</updated>
+    </task>
+    <task id="LOCAL-00009" summary="SOUNDS! + Refactoring">
+      <option name="closed" value="true" />
+      <created>1701647479734</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1701647479735</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -150,7 +257,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="gui_kiro" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -158,17 +277,31 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="File Bomb" />
-    <MESSAGE value="Fixed castle print" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed castle print" />
+    <MESSAGE value="Three fold repetition + refactoring" />
+    <MESSAGE value="small refactor" />
+    <MESSAGE value="refactor + testGame" />
+    <MESSAGE value="fixed blocking checks + more tests" />
+    <MESSAGE value="fixed En passant edge case" />
+    <MESSAGE value="gui started + drag and drop" />
+    <MESSAGE value="animation + move" />
+    <MESSAGE value="fixed backend double pawn move" />
+    <MESSAGE value="DnD + Sound attempt" />
+    <MESSAGE value="SOUNDS! + Refactoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="SOUNDS! + Refactoring" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <breakpoint enabled="true" type="java-exception">
-          <properties class="java.io.FileNotFoundException" package="java.io" />
-          <option name="timeStamp" value="1" />
-        </breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/core/ChessGameTest.java</url>
+          <line>181</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/core/Piece.java</url>
+          <line>26</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint enabled="true" type="java-exception" />
