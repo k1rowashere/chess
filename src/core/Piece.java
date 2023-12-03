@@ -180,8 +180,13 @@ public record Piece(PieceType type, Color color) {
                 boolean onStartRank = square.rank() == Rank._2 && color == Color.White
                         || square.rank() == Rank._7 && color == Color.Black;
 
-                if (onStartRank)
-                    square.add(0, 2 * direction).ifPresent(moves::add);
+                if (onStartRank) {
+                    square.add(0, 2 * direction)
+                            .ifPresent(s -> {
+                                        if (board.getPiece(s).isEmpty()) moves.add(s);
+                                    }
+                            );
+                }
             }
 
             var enPassantLeft = false;
