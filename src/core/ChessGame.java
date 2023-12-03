@@ -69,6 +69,17 @@ public class ChessGame {
         return this.board.copy();
     }
 
+    public boolean isPromotionMove(Move move) {
+        if (!isLegalMove(move))
+            return false;
+
+        Square source = move.from();
+        Square target = move.to();
+        var piece = this.board.getPiece(source).orElseThrow();
+
+        return piece.type() == PieceType.Pawn && (target.rank() == Rank._8 || target.rank() == Rank._1);
+    }
+
     /**
      * @param move the move to make
      * @return the move that was made, with additional information (promotion,

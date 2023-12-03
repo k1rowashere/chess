@@ -8,32 +8,24 @@ import java.awt.*;
 import java.util.function.BiConsumer;
 
 class Board {
-    private final Game.PieceLabel[][] board = new Game.PieceLabel[8][8];
+    private final PieceLabel[][] board = new PieceLabel[8][8];
 
-    Board(BiConsumer<Game.PieceLabel, Square> onSelect, JPanel panel) {
+    Board(JPanel panel, Dimension cellDim, BiConsumer<PieceLabel, Square> onSelect) {
         for (var rank : Rank.values()) {
             for (var file : core.square.File.values()) {
-                var label = new Game.PieceLabel(
-                        null,
-                        new Square(file, rank),
-                        onSelect);
-
-                var i = rank.ordinal();
-                var j = file.ordinal();
-                label.setBackground(new Color((i + j) % 2 == 0 ? 0xb58863 :
-                        0xf0d9b5));
-
-                this.set(label, new Square(file, rank));
+                Square square = new Square(file, rank);
+                var label = new PieceLabel(null, square, cellDim, onSelect);
+                this.set(label, square);
                 panel.add(label);
             }
         }
     }
 
-    Game.PieceLabel get(Square square) {
+    PieceLabel get(Square square) {
         return board[square.rank().ordinal()][square.file().ordinal()];
     }
 
-    void forEach(BiConsumer<Game.PieceLabel, Square> consumer) {
+    void forEach(BiConsumer<PieceLabel, Square> consumer) {
         for (var rank : Rank.values()) {
             for (var file : core.square.File.values()) {
                 consumer.accept(get(new Square(file, rank)), new Square(file,
@@ -43,7 +35,7 @@ class Board {
     }
 
 
-    public void set(Game.PieceLabel label, Square square) {
+    public void set(PieceLabel label, Square square) {
         board[square.rank().ordinal()][square.file().ordinal()] = label;
     }
 }

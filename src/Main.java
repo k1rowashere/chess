@@ -12,22 +12,11 @@ import static core.square.File.*;
 import static core.square.Rank.*;
 
 public class Main {
-//    public static void main(String[] args) throws IOException {
-//        Scanner scanner = new Scanner(new java.io.File("ChessGame.txt"));
-//        ChessGame game = new ChessGame();
-//
-//        boolean gameEnded = false;
-//        while (scanner.hasNextLine()) {
-//            String[] line = scanner.nextLine().split(",");
-//            if (gameEnded) {
-//                System.out.println("Game already ended");
-//                continue;
-//            }
-//            gameEnded = gameLoop(line, game);
-//        }
-//    }
-
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {
+        }
         var game = new ChessGame();
         var gui = new Game(game);
         SwingUtilities.invokeLater(() -> gui.setVisible(true));
