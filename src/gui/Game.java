@@ -20,7 +20,6 @@ public class Game extends JFrame {
     private static final int GRID_SIZE = 8;
     private static final int CELL_SIZE = 90;
     private static final int TOTAL_SIZE = GRID_SIZE * CELL_SIZE;
-    // read from env
     private static final boolean FLIP_BOARD = true;
     private final Board board;
     private Square selectedSquare = null;

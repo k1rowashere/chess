@@ -4,21 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="DnD + Sound attempt">
-      <change afterPath="$PROJECT_DIR$/resources/skins/default/sounds/capture.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/skins/default/sounds/castle.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/skins/default/sounds/check.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/skins/default/sounds/game-end.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/skins/default/sounds/move.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/skins/default/sounds/promote.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/PieceLabel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gui/Sounds.java" afterDir="false" />
+    <list default="true" id="875336f8-04fe-4d99-a89c-e176f06a32ca" name="Changes" comment="SOUNDS! + Refactoring">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/ChessGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/ChessGame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/move/Move.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/move/Move.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/Board.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/Game.form" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gui/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/Game.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -267,7 +255,15 @@
       <option name="project" value="LOCAL" />
       <updated>1701621324563</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="SOUNDS! + Refactoring">
+      <option name="closed" value="true" />
+      <created>1701647479734</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1701647479735</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -304,7 +300,8 @@
     <MESSAGE value="animation + move" />
     <MESSAGE value="fixed backend double pawn move" />
     <MESSAGE value="DnD + Sound attempt" />
-    <option name="LAST_COMMIT_MESSAGE" value="DnD + Sound attempt" />
+    <MESSAGE value="SOUNDS! + Refactoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="SOUNDS! + Refactoring" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
