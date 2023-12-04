@@ -186,5 +186,19 @@ class ChessGameTest {
 
     }
 
+    //test fromHash and toHash
+    @org.junit.jupiter.api.Test
+    void testHash() {
+        var game = new ChessGame();
+        var hash = game.board().toHash();
+
+        var board = new Board();
+        board.fromHash(hash);
+        System.out.println(hash);
+        System.out.println(board.toHash());
+
+        assert (hash.equals(board.toHash()));
+    }
+
 
 }

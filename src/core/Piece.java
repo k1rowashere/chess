@@ -24,30 +24,24 @@ public record Piece(PieceType type, Color color) {
     }
 
     public char unicodeSym() {
-        switch (this.color) {
-            case White -> {
-                return switch (this.type) {
-                    case Pawn -> '♙';
-                    case Knight -> '♘';
-                    case Bishop -> '♗';
-                    case Rook -> '♖';
-                    case Queen -> '♕';
-                    case King -> '♔';
-                };
-            }
-            case Black -> {
-                return switch (this.type) {
-                    case Pawn -> '♟';
-                    case Knight -> '♞';
-                    case Bishop -> '♝';
-                    case Rook -> '♜';
-                    case Queen -> '♛';
-                    case King -> '♚';
-                };
-            }
-
-        }
-        return ' ';
+        return switch (this.color) {
+            case White -> switch (this.type) {
+                case Pawn -> '♙';
+                case Knight -> '♘';
+                case Bishop -> '♗';
+                case Rook -> '♖';
+                case Queen -> '♕';
+                case King -> '♔';
+            };
+            case Black -> switch (this.type) {
+                case Pawn -> '♟';
+                case Knight -> '♞';
+                case Bishop -> '♝';
+                case Rook -> '♜';
+                case Queen -> '♛';
+                case King -> '♚';
+            };
+        };
     }
 
     /**

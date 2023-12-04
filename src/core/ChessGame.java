@@ -8,58 +8,29 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-record CastleRights(boolean whiteKingside, boolean whiteQueenside,
-                    boolean blackKingside, boolean blackQueenside) {
-    CastleRights() {
-        this(true, true, true, true);
-    }
-
-    CastleRights disableKingside(Color color) {
-        return switch (color) {
-            case White ->
-                    new CastleRights(false, this.whiteQueenside, this.blackKingside, this.blackQueenside);
-            case Black ->
-                    new CastleRights(this.whiteKingside, this.whiteQueenside, false, this.blackQueenside);
-        };
-    }
-
-    CastleRights disableQueenside(Color color) {
-        return switch (color) {
-            case White ->
-                    new CastleRights(this.whiteKingside, false, this.blackKingside, this.blackQueenside);
-            case Black ->
-                    new CastleRights(this.whiteKingside, this.whiteQueenside, this.blackKingside, false);
-        };
-    }
-
-    CastleRights disableBoth(Color color) {
-        return switch (color) {
-            case White ->
-                    new CastleRights(false, false, this.blackKingside, this.blackQueenside);
-            case Black ->
-                    new CastleRights(this.whiteKingside, this.whiteQueenside, false, false);
-        };
-    }
-}
-
 public class ChessGame {
     private final Board board;
-    private final ArrayList<String> threeFoldRepetitionStates;
+    private final ArrayList<String> threeFoldStates;
     private Color toMove;
     private CastleRights castleRights;
     private File enPassantTarget;
-    private int fiftyMoveRuleStates = 50;
-    // TODO: move history
+    private int fiftyMoveRule;
+    private final ArrayList<GameMemo> history;
 
     public ChessGame() {
         this.board = Board.defaultBoard();
         this.toMove = Color.White;
         this.castleRights = new CastleRights();
         this.enPassantTarget = null;
-        this.threeFoldRepetitionStates = new ArrayList<>();
+        this.threeFoldStates = new ArrayList<>();
+        this.fiftyMoveRule = 50;
+
+        this.history = new ArrayList<>();
+        this.history.add(new GameMemo(this, null));
     }
 
     /**
@@ -67,6 +38,26 @@ public class ChessGame {
      */
     public Board board() {
         return this.board.copy();
+    }
+
+    public void undo() {
+        undo(1);
+    }
+
+    public void undo(int count) {
+        assert count > 0;
+        rollback(history.size() - 1 - count);
+    }
+
+    private void rollback(int idx) {
+        this.history.get(idx).restoreGame(this);
+        this.history.subList(idx + 1, this.history.size()).clear();
+    }
+
+    public void rollback(int moveNo, Color player) {
+        int idx = (moveNo - 1) * 2 + (player == Color.Black ? 1 : 0);
+        assert idx >= 0 && idx < this.history.size();
+        rollback(idx);
     }
 
     public boolean isPromotionMove(Move move) {
@@ -91,7 +82,8 @@ public class ChessGame {
     public QualifiedMove move(Move move) throws IllegalArgumentException {
         /* List of steps:
          * 1. Validate move
-         * 2. Move piece
+         * 2. DisambiguateMove for acn
+         * 3. Move piece
          * 4. Promotion
          * 5. En passant
          * 6. Castle
@@ -105,17 +97,39 @@ public class ChessGame {
         Square source = move.from();
         Square target = move.to();
 
+        var retMove = new QualifiedMoveBuilder();
         var piece = this.board.getPiece(source).orElseThrow();
         var capturedPiece = this.board.getPiece(target);
 
-        var retMove = new QualifiedMoveBuilder();
+        /*
+         * check if the move requires disambiguation
+         * https://en.m.wikipedia.org/wiki/Algebraic_notation_(chess)#Disambiguating_moves
+         */
+        var pieces = this.board.getPieces().stream()
+                .filter(bp -> bp.type() == piece.type())
+                .filter(bp -> !bp.square().equals(source))
+                .filter(bp -> isLegalMove(new Move(bp.square(), target)))
+                .toList();
+
+        if (!pieces.isEmpty()) {
+            if (pieces.stream().noneMatch(bp -> bp.square().file() == source.file())) {
+                retMove.disambiguateFile();
+            } else if (pieces.stream().noneMatch(bp -> bp.square().rank() == source.rank())) {
+                retMove.disambiguateRank();
+            } else {
+                retMove.disambiguateFile();
+                retMove.disambiguateRank();
+            }
+        }
+
+        // Do move :)
+        this.board.move(move);
 
         retMove.piece(piece.piece())
                 .source(source)
                 .target(target)
                 .capture(capturedPiece.map(BoardPiece::type).orElse(null));
 
-        this.board.move(move);
 
         // Promotion & En passant
         if (piece.type() == PieceType.Pawn) {
@@ -196,10 +210,10 @@ public class ChessGame {
             // this is an optimization, since when a pawn is moved or a piece
             // is captured, the state of the board can never repeat and thus
             // the threefold repetition check can be skipped
-            this.threeFoldRepetitionStates.clear();
-            this.fiftyMoveRuleStates = 0;
+            this.threeFoldStates.clear();
+            this.fiftyMoveRule = 0;
         } else {
-            this.fiftyMoveRuleStates++;
+            this.fiftyMoveRule++;
         }
 
         // Update turn
@@ -208,7 +222,12 @@ public class ChessGame {
         // game over conditions
         retMove.status(gameStateCheck());
 
-        return retMove.build();
+        var qualifiedMove = retMove.build();
+
+        history.add(new GameMemo(this, qualifiedMove));
+//        this.historyIndex++;
+
+        return qualifiedMove;
     }
 
     public boolean isLegalMove(@NotNull Move move) {
@@ -253,8 +272,8 @@ public class ChessGame {
                 .sum() == 0;
 
         String hash = this.board.toHash();
-        this.threeFoldRepetitionStates.add(hash);
-        var threeFoldRepetition = this.threeFoldRepetitionStates
+        this.threeFoldStates.add(hash);
+        var threeFoldRepetition = this.threeFoldStates
                 .stream()
                 .filter(state -> state.equals(hash))
                 .count() >= 3;
@@ -265,7 +284,7 @@ public class ChessGame {
                 case Black -> GameStatus.WhiteWins;
                 case White -> GameStatus.BlackWins;
             } : GameStatus.Stalemate;
-        } else if (fiftyMoveRuleStates == 50) {
+        } else if (fiftyMoveRule == 50) {
             return GameStatus.Draw;
         } else if (threeFoldRepetition) {
             return GameStatus.Draw;
@@ -408,6 +427,39 @@ public class ChessGame {
 
             if (board.getPiece(source).isPresent())
                 return false;
+        }
+    }
+
+    private record GameMemo(
+            QualifiedMove lastMove,
+            String boardHash,
+            List<String> threeFoldStates,
+            Color toMove,
+            CastleRights castleRights,
+            File enPassantTarget,
+            int fiftyMoveRule
+    ) {
+        GameMemo(ChessGame game, QualifiedMove lastMove) {
+            this(lastMove,
+                    game.board.toHash(),
+                    List.copyOf(game.threeFoldStates),
+                    game.toMove,
+                    game.castleRights,
+                    game.enPassantTarget,
+                    game.fiftyMoveRule
+            );
+        }
+
+        void restoreGame(ChessGame game) {
+            game.board.fromHash(this.boardHash);
+
+            game.threeFoldStates.clear();
+            game.threeFoldStates.addAll(this.threeFoldStates);
+
+            game.toMove = this.toMove;
+            game.castleRights = this.castleRights;
+            game.enPassantTarget = this.enPassantTarget;
+            game.fiftyMoveRule = this.fiftyMoveRule;
         }
     }
 }
