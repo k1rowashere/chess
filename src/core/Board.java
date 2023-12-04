@@ -7,10 +7,8 @@ import core.square.Square;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public final class Board {
     private final Piece[][] board;
@@ -53,34 +51,6 @@ public final class Board {
         return new Board(board);
     }
 
-    /**
-     * @return A hex hash of the board
-     */
-    public String toHash() {
-        // convert board to bitmap of 64 bits for each piece, 6 pieces per color
-        int[] bitmaps = new int[12];
-        for (int rank = 0; rank < 8; rank++) {
-            for (int file = 0; file < 8; file++) {
-                Piece piece = this.board[rank][file];
-                if (piece != null) {
-                    int index = piece.color() == Color.White ? 0 : 6;
-                    index += switch (piece.type()) {
-                        case Pawn -> 0;
-                        case Knight -> 1;
-                        case Bishop -> 2;
-                        case Rook -> 3;
-                        case Queen -> 4;
-                        case King -> 5;
-                    };
-                    bitmaps[index] |= 1 << (rank * 8 + file);
-                }
-            }
-        }
-
-        return Arrays.stream(bitmaps)
-                .mapToObj(Integer::toHexString)
-                .collect(Collectors.joining());
-    }
 
     public BoardPiece getKing(Color color) {
         return getPieces().stream()
@@ -162,5 +132,62 @@ public final class Board {
             builder.append("\n");
         }
         return builder.toString();
+    }
+
+
+    /**
+     * @return A hex hash of the board
+     */
+    public String toHash() {
+        var s = new StringBuilder();
+        for (var row : board) {
+            for (int i = 0; i < 8; i++) {
+                char ch;
+                if (row[i] == null) {
+                    ch = '_';
+                } else {
+                    ch = switch (row[i].type()) {
+                        case Pawn -> 'p';
+                        case Knight -> 'n';
+                        case Bishop -> 'b';
+                        case Rook -> 'r';
+                        case Queen -> 'q';
+                        case King -> 'k';
+                    };
+                    if (row[i].color() == Color.Black)
+                        ch = Character.toUpperCase(ch);
+                }
+
+                s.append(ch);
+            }
+        }
+        return s.toString();
+    }
+
+    public void fromHash(String boardHash) {
+        assert boardHash.length() == 64;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                char ch = boardHash.charAt(i * 8 + j);
+                var pieceType = switch (Character.toLowerCase(ch)) {
+                    case 'p' -> PieceType.Pawn;
+                    case 'n' -> PieceType.Knight;
+                    case 'b' -> PieceType.Bishop;
+                    case 'r' -> PieceType.Rook;
+                    case 'q' -> PieceType.Queen;
+                    case 'k' -> PieceType.King;
+                    default -> null;
+                };
+
+                Piece piece = null;
+                if (pieceType != null) {
+                    var color = Character.isUpperCase(ch) ? Color.Black :
+                            Color.White;
+                    piece = new Piece(pieceType, color);
+                }
+
+                this.board[i][j] = piece;
+            }
+        }
     }
 }

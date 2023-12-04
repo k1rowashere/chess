@@ -16,18 +16,26 @@ import java.awt.image.BufferedImage;
 import java.util.function.BiConsumer;
 
 class PieceLabel extends JLabel {
+    private static final DataFlavor DATA_FLAVOR = new DataFlavor(Piece.class, "PieceLabel");
     private static final Color DARK = new Color(0xb58863);
     private static final Color LIGHT = new Color(0xf0d9b5);
     private static final Color SELECTED = new Color(0x00DD00);
     private static final Color LEGAL = new Color(0x9C9C9C);
     private static final Color CHECK = new Color(0xFF0000);
+    private static final Color LAST_MOVE = new Color(0xDDDD00);
     private static Image[][] pieceImages;
+
     private final Color initBg;
     private Piece piece;
+    private boolean selected = false;
+    private boolean inCheck = false;
+    private boolean legal = false;
+    private boolean lastMove = false;
+
 
     public PieceLabel(Piece piece, Square square, Dimension dim,
-                      BiConsumer<PieceLabel,
-                              Square> onSelect) {
+                      BiConsumer<PieceLabel, Square> onSelect,
+                      BiConsumer<PieceLabel, Square> onDrag) {
         initImages(dim.width, dim.height);
 
         this.initBg =
@@ -43,15 +51,12 @@ class PieceLabel extends JLabel {
         this.setTransferHandler(new TransferHandler() {
             @Override
             public boolean canImport(TransferSupport support) {
-                return support.isDataFlavorSupported(PieceTransferable.DATA_FLAVOR);
+                return support.isDataFlavorSupported(DATA_FLAVOR);
             }
 
             @Override
             public boolean importData(TransferSupport support) {
-                if (!canImport(support)) {
-                    return false;
-                }
-
+                if (!canImport(support)) return false;
                 onSelect.accept(PieceLabel.this, square);
                 return true;
             }
@@ -59,8 +64,7 @@ class PieceLabel extends JLabel {
 
         this.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
+            public void mouseClicked(MouseEvent e) {
                 onSelect.accept(PieceLabel.this, square);
             }
         });
@@ -69,20 +73,33 @@ class PieceLabel extends JLabel {
                 this,
                 DnDConstants.ACTION_COPY_OR_MOVE,
                 dge -> {
-                    var label = PieceLabel.this;
-                    var icon = (ImageIcon) label.getIcon();
-                    if (icon == null) {
-                        return;
-                    }
+                    if (this.piece == null) return;
+                    onDrag.accept(PieceLabel.this, square);
                     this.ghost();
-                    this.select();
-                    dge.startDrag(
-                            Cursor.getPredefinedCursor(Cursor.HAND_CURSOR),
+                    // workaround for the ghost image not being drawn on linux
+                    // using a cursor instead of drag image
+                    Cursor cursor = Toolkit.getDefaultToolkit().createCustomCursor(
                             getImage(),
-                            new Point(0, 0),
-                            new PieceTransferable(piece),
+                            new Point(this.getWidth() / 2, this.getHeight() / 2),
                             null
                     );
+                    Transferable transferable = new Transferable() {
+                        @Override
+                        public DataFlavor[] getTransferDataFlavors() {
+                            return new DataFlavor[]{DATA_FLAVOR};
+                        }
+
+                        @Override
+                        public boolean isDataFlavorSupported(DataFlavor flavor) {
+                            return flavor.equals(DATA_FLAVOR);
+                        }
+
+                        @Override
+                        public @NotNull Object getTransferData(DataFlavor flavor) {
+                            return PieceLabel.this.piece;
+                        }
+                    };
+                    dge.startDrag(cursor, transferable);
                 }
         );
     }
@@ -107,7 +124,6 @@ class PieceLabel extends JLabel {
         }
     }
 
-
     public void setPiece(Piece piece) {
         this.piece = piece;
         if (piece == null) {
@@ -118,17 +134,14 @@ class PieceLabel extends JLabel {
         this.setIcon(new ImageIcon(getImage()));
     }
 
-    public void reset() {
-        this.setBackground(initBg);
-        this.setPiece(piece);
+    public void select() {
+        this.selected = true;
+        this.update();
     }
 
-    public void select() {
-        // mix the color with initBg
-        var r = (initBg.getRed() + SELECTED.getRed()) / 2;
-        var g = (initBg.getGreen() + SELECTED.getGreen()) / 2;
-        var b = (initBg.getBlue() + SELECTED.getBlue()) / 2;
-        this.setBackground(new Color(r, g, b));
+    public void legal() {
+        this.legal = true;
+        this.update();
     }
 
     public void ghost() {
@@ -148,40 +161,50 @@ class PieceLabel extends JLabel {
         this.setIcon(new ImageIcon(img));
     }
 
+    public void deselect() {
+        this.selected = false;
+        this.legal = false;
+        this.setPiece(this.piece);
+        this.update();
+    }
+
+    public void check() {
+        this.inCheck = true;
+        this.update();
+    }
+
+    public void reset() {
+        this.inCheck = false;
+        this.legal = false;
+        this.lastMove = false;
+        this.selected = false;
+        this.update();
+    }
+
+    public void lastMove() {
+        this.lastMove = true;
+        this.update();
+    }
+
     @NotNull
     private Image getImage() {
         return pieceImages[piece.color().ordinal()][piece.type().ordinal()];
     }
 
-    public void legal() {
-        var r = (initBg.getRed() + LEGAL.getRed()) / 2;
-        var g = (initBg.getGreen() + LEGAL.getGreen()) / 2;
-        var b = (initBg.getBlue() + LEGAL.getBlue()) / 2;
-        this.setBackground(new Color(r, g, b));
+    private Color mix(Color a, Color b) {
+        return new Color(
+                (a.getRed() + b.getRed()) / 2,
+                (a.getGreen() + b.getGreen()) / 2,
+                (a.getBlue() + b.getBlue()) / 2
+        );
     }
 
-    public void check() {
-        this.setBackground(CHECK);
-    }
-
-    private record PieceTransferable(Piece piece) implements Transferable {
-
-        public static final DataFlavor DATA_FLAVOR =
-                new DataFlavor(Piece.class, "PieceLabel");
-
-        @Override
-        public DataFlavor[] getTransferDataFlavors() {
-            return new DataFlavor[]{DATA_FLAVOR};
-        }
-
-        @Override
-        public boolean isDataFlavorSupported(DataFlavor flavor) {
-            return flavor.equals(DATA_FLAVOR);
-        }
-
-        @Override
-        public @NotNull Object getTransferData(DataFlavor flavor) {
-            return piece;
-        }
+    private void update() {
+        var bgColor = new Color(initBg.getRGB());
+        if (this.selected) bgColor = mix(bgColor, SELECTED);
+        if (this.legal) bgColor = mix(bgColor, LEGAL);
+        if (this.inCheck) bgColor = mix(bgColor, CHECK);
+        if (this.lastMove) bgColor = mix(bgColor, LAST_MOVE);
+        this.setBackground(bgColor);
     }
 }

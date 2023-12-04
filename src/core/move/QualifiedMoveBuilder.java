@@ -13,6 +13,8 @@ public class QualifiedMoveBuilder {
     private boolean enPassant;
     private PieceType capture;
     private PieceType promotion;
+    private boolean disambiguateRank;
+    private boolean disambiguateFile;
 
     public QualifiedMoveBuilder() {
         this.status = GameStatus.InProgress;
@@ -23,6 +25,8 @@ public class QualifiedMoveBuilder {
         this.enPassant = false;
         this.capture = null;
         this.promotion = null;
+        this.disambiguateRank = false;
+        this.disambiguateFile = false;
     }
 
     public QualifiedMoveBuilder status(GameStatus status) {
@@ -65,7 +69,19 @@ public class QualifiedMoveBuilder {
         return this;
     }
 
+    public QualifiedMoveBuilder disambiguateRank() {
+        this.disambiguateRank = true;
+        return this;
+    }
+
+
+    public QualifiedMoveBuilder disambiguateFile() {
+        this.disambiguateFile = true;
+        return this;
+    }
+
     public QualifiedMove build() {
-        return new QualifiedMove(status, piece, from, to, castle, enPassant, capture, promotion);
+        return new QualifiedMove(status, piece, from, to, castle, enPassant,
+                capture, promotion, disambiguateRank, disambiguateFile);
     }
 }

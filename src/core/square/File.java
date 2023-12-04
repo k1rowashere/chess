@@ -16,4 +16,9 @@ public enum File {
     public int sub(File other) {
         return this.ordinal() - other.ordinal();
     }
+
+    @Override
+    public String toString() {
+        return super.toString().toLowerCase();
+    }
 }
