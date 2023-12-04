@@ -5,6 +5,8 @@ import core.Piece;
 import core.PieceType;
 import core.square.Square;
 
+import java.util.Objects;
+
 public record QualifiedMove(
         GameStatus status,
         Piece piece,
@@ -20,17 +22,18 @@ public record QualifiedMove(
     public String partialAlgebraicNotation() {
         StringBuilder res = new StringBuilder();
 
-        var piece = switch (this.piece().type()) {
-            case Pawn -> "";
-            default -> new Piece(this.piece().type(), Color.Black).unicodeSym();
-        };
+        String piece;
+        if (this.piece().type() == PieceType.Pawn) {
+            piece = "";
+        } else {
+            piece = new Piece(this.piece().type(), Color.Black).unicodeSym() + "";
+        }
 
         var postfix = switch (this.status()) {
             case WhiteWins, BlackWins -> "#";
             case Check -> "+";
             default -> "";
         };
-        System.out.println(this);
 
 
         switch (this.castle()) {
@@ -57,11 +60,15 @@ public record QualifiedMove(
         return res.toString();
     }
 
-    public static String fullAlgebraicNotation(QualifiedMove white,
-                                               QualifiedMove black) {
+//    public static String fullAlgebraicNotation(QualifiedMove white,
+//                                               QualifiedMove black,
+//                                               int moveNumber) {
+//        var res = new StringBuilder();
+//        res.append(moveNumber).append(". ");
+//        res.append(white.partialAlgebraicNotation()).append(" ");
+//        res.append(black.partialAlgebraicNotation()).append(" ");
+//        return res.toString();
+//    }
 
-        return "";
-    }
-    // print the move in algebraic notation
 }
 

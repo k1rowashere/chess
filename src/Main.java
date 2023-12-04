@@ -11,6 +11,8 @@ public class Main {
         }
         var game = new ChessGame();
         var gui = new Game(game);
+
+
         SwingUtilities.invokeLater(() -> gui.setVisible(true));
     }
 }

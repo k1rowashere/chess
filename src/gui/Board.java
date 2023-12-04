@@ -10,11 +10,13 @@ import java.util.function.BiConsumer;
 class Board {
     private final PieceLabel[][] board = new PieceLabel[8][8];
 
-    Board(JPanel panel, Dimension cellDim, BiConsumer<PieceLabel, Square> onSelect) {
+    Board(JPanel panel, Dimension cellDim,
+          BiConsumer<PieceLabel, Square> onSelect,
+          BiConsumer<PieceLabel, Square> onDrag) {
         for (var rank : Rank.values()) {
             for (var file : core.square.File.values()) {
                 Square square = new Square(file, rank);
-                var label = new PieceLabel(null, square, cellDim, onSelect);
+                var label = new PieceLabel(null, square, cellDim, onSelect, onDrag);
                 this.set(label, square);
                 panel.add(label);
             }

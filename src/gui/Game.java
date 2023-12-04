@@ -20,15 +20,16 @@ public class Game extends JFrame {
     private static final int GRID_SIZE = 8;
     private static final int CELL_SIZE = 90;
     private static final int TOTAL_SIZE = GRID_SIZE * CELL_SIZE;
-    private static final boolean FLIP_BOARD = true;
+    private static final boolean FLIP_BOARD = false;
     private final Board board;
     private Square selectedSquare = null;
 
     public Game(@NotNull ChessGame game) {
-        this.setTitle("Image Grid");
+        this.setTitle("Kiro & Nor | Chess™");
         this.setSize(TOTAL_SIZE, TOTAL_SIZE);
         this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setJMenuBar(new MenuBar(e -> onUndo(game)));
 
         var gridLayout = new GridLayout(GRID_SIZE, GRID_SIZE);
         var panel = new JPanel(gridLayout);
@@ -37,7 +38,9 @@ public class Game extends JFrame {
 
         this.board = new Board(panel,
                 new Dimension(CELL_SIZE, CELL_SIZE),
-                (label1, square) -> move(game, label1, square));
+                (l, s) -> onClick(game, l, s),
+                (l, s) -> select(game, l, s)
+        );
 
         // init board
         game.board().getPieces().forEach((boardPiece) -> {
@@ -49,9 +52,7 @@ public class Game extends JFrame {
         flip();
     }
 
-    private void move(ChessGame game, PieceLabel label, Square square) {
-        board.forEach((l, s) -> l.reset());
-
+    private void onClick(ChessGame game, PieceLabel label, Square square) {
         if (this.selectedSquare != null) {
             try {
                 var doMove = new Move(this.selectedSquare, square);
@@ -68,10 +69,22 @@ public class Game extends JFrame {
         }
 
         if (Objects.equals(this.selectedSquare, square)) {
+            board.forEach((l, s) -> l.deselect());
             this.selectedSquare = null;
             return;
         }
 
+        select(game, label, square);
+    }
+
+    private void onUndo(ChessGame game) {
+        // TODO
+         game.undo();
+         this.refresh(game.board());
+    }
+
+    private void select(ChessGame game, PieceLabel label, Square square) {
+        board.forEach((l, s) -> l.deselect());
         this.selectedSquare = square;
         label.select();
         game.getLegalMoves(square).forEach(move -> board.get(move).legal());
@@ -105,32 +118,45 @@ public class Game extends JFrame {
     }
 
     private void animateMove(@NotNull Move move, Piece piece) {
+        final int STEPS = 20;
+        final int DURATION = 100;
+
         var from = board.get(move.from());
         var to = board.get(move.to());
 
-        JPanel contentPane = (JPanel) getContentPane();
-        var glassPane = (JPanel) contentPane.getRootPane().getGlassPane();
-        var tempLabel = new JLabel(from.getIcon());
+        // account for the offset of the board
+        var window = this.getLocationOnScreen();
+        var board = this.getContentPane().getLocationOnScreen();
+        var offset = new Point(board.x - window.x, board.y - window.y);
 
+        Point src = from.getLocation();
+        src.translate(offset.x, offset.y);
+
+        Point dest = to.getLocation();
+        dest.translate(offset.x, offset.y);
+
+        var glassPane = (JPanel) this.getRootPane().getGlassPane();
         glassPane.setLayout(null);
         glassPane.setVisible(true);
 
+        var tempLabel = new JLabel(from.getIcon());
         tempLabel.setSize(from.getSize());
-        tempLabel.setLocation(from.getX(), from.getY());
+        tempLabel.setLocation(src);
 
         var comp = glassPane.add(tempLabel);
 
-        var dy = (to.getY() - from.getY()) / 10.0;
-        var dx = (to.getX() - from.getX()) / 10.0;
+        var dx = (to.getX() - from.getX()) / STEPS;
+        var dy = (to.getY() - from.getY()) / STEPS;
+        var step = Math.sqrt(dx * dx + dy * dy);
 
         from.setPiece(null);
+        var timer = new Timer(DURATION / STEPS, e -> {
+            var newLoc = comp.getLocation();
+            newLoc.translate(dx, dy);
+            comp.setLocation(newLoc);
 
-        // ease in ease out
-        var timer = new Timer(10, e -> {
-            var x = (int) (tempLabel.getX() + dx);
-            var y = (int) (tempLabel.getY() + dy);
-            comp.setLocation(x, y);
-            if (x == to.getX() && y == to.getY()) {
+            // check if the piece has reached its destination (or passed it)
+            if (newLoc.distance(dest) <= step) {
                 ((Timer) e.getSource()).stop();
                 glassPane.remove(comp);
                 glassPane.setVisible(false);
@@ -141,8 +167,11 @@ public class Game extends JFrame {
     }
 
     private void move(QualifiedMove move, ChessGame game) {
+        board.forEach((label, square) -> label.reset());
+
         playSound(move);
         var piece = move.piece();
+        System.out.println(move.partialAlgebraicNotation());
 
         // en passant
         if (move.enPassant()) {
@@ -186,6 +215,9 @@ public class Game extends JFrame {
             } catch (InterruptedException ignore) {
             }
 
+            board.get(move.from()).lastMove();
+            board.get(move.to()).lastMove();
+
             var msg = switch (move.status()) {
                 case WhiteWins -> "White Wins";
                 case BlackWins -> "Black Wins";
@@ -193,8 +225,9 @@ public class Game extends JFrame {
                 case Draw -> "Draw";
                 case InsufficientMaterial -> "Insufficient Material";
                 case null, default -> {
-                    if (FLIP_BOARD)
+                    if (FLIP_BOARD) {
                         flip();
+                    }
                     yield null;
                 }
             };
@@ -216,6 +249,15 @@ public class Game extends JFrame {
                 else Sounds.MOVE.play();
             }
         }
+    }
+
+    public void refresh(core.Board board) {
+        this.board.forEach((label, square) -> label.setPiece(null));
+
+        board.getPieces().forEach((boardPiece) -> {
+            var label = this.board.get(boardPiece.square());
+            label.setPiece(boardPiece.piece());
+        });
     }
 
     private void flip() {
