@@ -11,7 +11,7 @@ class Board {
     private final PieceLabel[][] board = new PieceLabel[8][8];
 
     Board(JPanel panel, Dimension cellDim,
-          BiConsumer<PieceLabel, Square> onSelect,
+          TriConsumer<PieceLabel, Square, Boolean> onSelect,
           BiConsumer<PieceLabel, Square> onDrag) {
         for (var rank : Rank.values()) {
             for (var file : core.square.File.values()) {

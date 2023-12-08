@@ -8,25 +8,23 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ChessGame {
     private final Board board;
-    private final ArrayList<String> threeFoldStates;
+    private final ArrayList<GameMemo> history;
     private Color toMove;
     private CastleRights castleRights;
     private File enPassantTarget;
     private int fiftyMoveRule;
-    private final ArrayList<GameMemo> history;
 
     public ChessGame() {
         this.board = Board.defaultBoard();
         this.toMove = Color.White;
         this.castleRights = new CastleRights();
         this.enPassantTarget = null;
-        this.threeFoldStates = new ArrayList<>();
         this.fiftyMoveRule = 50;
 
         this.history = new ArrayList<>();
@@ -40,24 +38,42 @@ public class ChessGame {
         return this.board.copy();
     }
 
-    public void undo() {
-        undo(1);
+
+    /**
+     * Undo the last move
+     *
+     * @return the last move made
+     */
+    public Optional<QualifiedMove> undo() {
+        return undo(1);
     }
 
-    public void undo(int count) {
+    /**
+     * @param count the number of moves to undo
+     * @return the last move made
+     */
+    public Optional<QualifiedMove> undo(int count) {
         assert count > 0;
-        rollback(history.size() - 1 - count);
+        return rollback(history.size() - 1 - count);
     }
 
-    private void rollback(int idx) {
-        this.history.get(idx).restoreGame(this);
-        this.history.subList(idx + 1, this.history.size()).clear();
-    }
-
-    public void rollback(int moveNo, Color player) {
+    /**
+     * @param moveNo the move number to undo to (1-indexed) (white +
+     *               black == 1 move)
+     * @param player the player to undo to
+     * @return the last move made by the player or empty if first move
+     */
+    public Optional<QualifiedMove> undo(int moveNo, Color player) {
         int idx = (moveNo - 1) * 2 + (player == Color.Black ? 1 : 0);
         assert idx >= 0 && idx < this.history.size();
-        rollback(idx);
+        return rollback(idx);
+    }
+
+    private Optional<QualifiedMove> rollback(int idx) {
+        var gameMemo = this.history.get(idx);
+        gameMemo.restoreGame(this);
+        this.history.subList(idx + 1, this.history.size()).clear();
+        return Optional.ofNullable(gameMemo.lastMove());
     }
 
     public boolean isPromotionMove(Move move) {
@@ -205,12 +221,8 @@ public class ChessGame {
         }
 
 
-        // reset fifty move rule and threefold repetition
+        // update fifty move rule
         if (capturedPiece.isPresent() || piece.type() == PieceType.Pawn) {
-            // this is an optimization, since when a pawn is moved or a piece
-            // is captured, the state of the board can never repeat and thus
-            // the threefold repetition check can be skipped
-            this.threeFoldStates.clear();
             this.fiftyMoveRule = 0;
         } else {
             this.fiftyMoveRule++;
@@ -224,9 +236,8 @@ public class ChessGame {
 
         var qualifiedMove = retMove.build();
 
+        // update history
         history.add(new GameMemo(this, qualifiedMove));
-//        this.historyIndex++;
-
         return qualifiedMove;
     }
 
@@ -271,12 +282,10 @@ public class ChessGame {
                 .mapToInt(ArrayList::size)
                 .sum() == 0;
 
-        String hash = this.board.toHash();
-        this.threeFoldStates.add(hash);
-        var threeFoldRepetition = this.threeFoldStates
+        var threeFoldRepetition = this.history
                 .stream()
-                .filter(state -> state.equals(hash))
-                .count() >= 3;
+                .filter(memo -> memo.isSamePosition(this))
+                .count() >= 2;
 
 
         if (noLegalMoves) {
@@ -433,7 +442,6 @@ public class ChessGame {
     private record GameMemo(
             QualifiedMove lastMove,
             String boardHash,
-            List<String> threeFoldStates,
             Color toMove,
             CastleRights castleRights,
             File enPassantTarget,
@@ -442,7 +450,6 @@ public class ChessGame {
         GameMemo(ChessGame game, QualifiedMove lastMove) {
             this(lastMove,
                     game.board.toHash(),
-                    List.copyOf(game.threeFoldStates),
                     game.toMove,
                     game.castleRights,
                     game.enPassantTarget,
@@ -452,14 +459,28 @@ public class ChessGame {
 
         void restoreGame(ChessGame game) {
             game.board.fromHash(this.boardHash);
-
-            game.threeFoldStates.clear();
-            game.threeFoldStates.addAll(this.threeFoldStates);
-
             game.toMove = this.toMove;
             game.castleRights = this.castleRights;
             game.enPassantTarget = this.enPassantTarget;
             game.fiftyMoveRule = this.fiftyMoveRule;
+        }
+
+        /**
+         * @param game the game to compare to
+         * @return if the game is in the same position as this memo
+         */
+        boolean isSamePosition(ChessGame game) {
+            return this.boardHash.equals(game.board.toHash())
+                    && this.toMove == game.toMove
+                    && this.castleRights.equals(game.castleRights)
+                    && this.enPassantTarget == game.enPassantTarget;
+        }
+
+        boolean isSamePosition(GameMemo memo) {
+            return this.boardHash.equals(memo.boardHash)
+                    && this.toMove == memo.toMove
+                    && this.castleRights.equals(memo.castleRights)
+                    && this.enPassantTarget == memo.enPassantTarget;
         }
     }
 }

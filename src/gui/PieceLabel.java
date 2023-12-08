@@ -15,6 +15,10 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.function.BiConsumer;
 
+interface TriConsumer<A, B, C> {
+    void accept(A a, B b, C c);
+}
+
 class PieceLabel extends JLabel {
     private static final DataFlavor DATA_FLAVOR = new DataFlavor(Piece.class, "PieceLabel");
     private static final Color DARK = new Color(0xb58863);
@@ -34,7 +38,7 @@ class PieceLabel extends JLabel {
 
 
     public PieceLabel(Piece piece, Square square, Dimension dim,
-                      BiConsumer<PieceLabel, Square> onSelect,
+                      TriConsumer<PieceLabel, Square, Boolean> onSelect,
                       BiConsumer<PieceLabel, Square> onDrag) {
         initImages(dim.width, dim.height);
 
@@ -57,7 +61,7 @@ class PieceLabel extends JLabel {
             @Override
             public boolean importData(TransferSupport support) {
                 if (!canImport(support)) return false;
-                onSelect.accept(PieceLabel.this, square);
+                onSelect.accept(PieceLabel.this, square, true);
                 return true;
             }
         });
@@ -65,7 +69,7 @@ class PieceLabel extends JLabel {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                onSelect.accept(PieceLabel.this, square);
+                onSelect.accept(PieceLabel.this, square, false);
             }
         });
 
@@ -76,13 +80,16 @@ class PieceLabel extends JLabel {
                     if (this.piece == null) return;
                     onDrag.accept(PieceLabel.this, square);
                     this.ghost();
-                    // workaround for the ghost image not being drawn on linux
+                    // workaround for the dragImage not being drawn on linux
                     // using a cursor instead of drag image
-                    Cursor cursor = Toolkit.getDefaultToolkit().createCustomCursor(
-                            getImage(),
-                            new Point(this.getWidth() / 2, this.getHeight() / 2),
-                            null
-                    );
+                    var cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+                    if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+                        cursor = Toolkit.getDefaultToolkit().createCustomCursor(
+                                getImage(),
+                                new Point(this.getWidth() / 2, this.getHeight() / 2),
+                                null
+                        );
+                    }
                     Transferable transferable = new Transferable() {
                         @Override
                         public DataFlavor[] getTransferDataFlavors() {
@@ -99,7 +106,11 @@ class PieceLabel extends JLabel {
                             return PieceLabel.this.piece;
                         }
                     };
-                    dge.startDrag(cursor, transferable);
+                    dge.startDrag(cursor,
+                            getImage(),
+                            new Point(this.getWidth() / 2, this.getHeight() / 2),
+                            transferable,
+                            null);
                 }
         );
     }
