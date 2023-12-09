@@ -439,6 +439,20 @@ public class ChessGame {
         }
     }
 
+    public Board peekBoard(Integer i) {
+        var board = new Board();
+        board.restoreFromHash(this.history.get(i).boardHash());
+        return board;
+    }
+
+    public QualifiedMove peekMove(Integer i) {
+        return this.history.get(i).lastMove();
+    }
+
+    public int moveCount() {
+        return this.history.size() - 1;
+    }
+
     private record GameMemo(
             QualifiedMove lastMove,
             String boardHash,
@@ -458,7 +472,7 @@ public class ChessGame {
         }
 
         void restoreGame(ChessGame game) {
-            game.board.fromHash(this.boardHash);
+            game.board.restoreFromHash(this.boardHash);
             game.toMove = this.toMove;
             game.castleRights = this.castleRights;
             game.enPassantTarget = this.enPassantTarget;

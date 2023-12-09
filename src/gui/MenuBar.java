@@ -6,8 +6,9 @@ import java.awt.event.ActionListener;
 class MenuBar extends JMenuBar {
     public MenuBar(ActionListener onUndo, ActionListener onNewGame) {
         JMenu menu = new JMenu("Game");
-        createMenuItem("Undo", onUndo, menu);
         createMenuItem("New Game", onNewGame, menu);
+        menu.addSeparator();
+        createMenuItem("Undo", onUndo, menu);
 
         this.add(menu);
     }

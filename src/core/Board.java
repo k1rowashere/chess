@@ -104,14 +104,14 @@ public final class Board {
         return board;
     }
 
-    public void setPiece(@NotNull Square square, Piece boardPiece) {
+    void setPiece(@NotNull Square square, Piece boardPiece) {
         int row = square.rank().ordinal();
         int col = square.file().ordinal();
 
         this.board[row][col] = boardPiece;
     }
 
-    public void removePiece(@NotNull Square square) {
+    void removePiece(@NotNull Square square) {
         int row = square.rank().ordinal();
         int col = square.file().ordinal();
 
@@ -164,7 +164,7 @@ public final class Board {
         return s.toString();
     }
 
-    public void fromHash(String boardHash) {
+    void restoreFromHash(String boardHash) {
         assert boardHash.length() == 64;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {

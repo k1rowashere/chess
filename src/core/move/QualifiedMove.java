@@ -5,8 +5,6 @@ import core.Piece;
 import core.PieceType;
 import core.square.Square;
 
-import java.util.Objects;
-
 public record QualifiedMove(
         GameStatus status,
         Piece piece,
@@ -19,6 +17,10 @@ public record QualifiedMove(
         boolean disambiguateRank,
         boolean disambiguateFile
 ) {
+    public Color color() {
+        return this.piece.color();
+    }
+
     public String partialAlgebraicNotation() {
         StringBuilder res = new StringBuilder();
 
@@ -59,16 +61,5 @@ public record QualifiedMove(
 
         return res.toString();
     }
-
-//    public static String fullAlgebraicNotation(QualifiedMove white,
-//                                               QualifiedMove black,
-//                                               int moveNumber) {
-//        var res = new StringBuilder();
-//        res.append(moveNumber).append(". ");
-//        res.append(white.partialAlgebraicNotation()).append(" ");
-//        res.append(black.partialAlgebraicNotation()).append(" ");
-//        return res.toString();
-//    }
-
 }
 

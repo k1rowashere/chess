@@ -193,7 +193,7 @@ class ChessGameTest {
         var hash = game.board().toHash();
 
         var board = new Board();
-        board.fromHash(hash);
+        board.restoreFromHash(hash);
         System.out.println(hash);
         System.out.println(board.toHash());
 
